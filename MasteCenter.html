@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Atividades - Projeto Marte Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .section-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .progress-bar {
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+    textarea {
+      resize: none;
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 p-4 md:p-6">
+  <div class="max-w-screen-2xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+    <!-- Header -->
+    <div class="bg-green-700 text-white p-4 flex justify-between items-center">
+      <div>
+        <a href="javascript:history.back()" class="text-white hover:text-gray-200 transition">
+          <i class="fas fa-arrow-left mr-2"></i> Voltar
+        </a>
+        <h1 class="text-xl md:text-2xl font-bold mt-2">CONTROLE DE ATIVIDADES DO PROJETO MARTE CENTER</h1>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button id="addSectionBtn" class="bg-green-600 hover:bg-green-800 text-white px-3 py-1 rounded-md text-sm flex items-center transition">
+          <i class="fas fa-plus mr-1"></i> Seção
+        </button>
+        <button id="addActivityBtn" class="bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm flex items-center transition">
+          <i class="fas fa-plus mr-1"></i> Atividade
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress Summary -->
+    <div class="bg-gray-100 p-3 border-b">
+      <div class="flex flex-wrap items-center justify-between">
+        <div class="w-full md:w-auto mb-2 md:mb-0">
+          <h3 class="font-semibold text-gray-700">Progresso Geral</h3>
+          <div class="progress-bar bg-gray-300 w-full md:w-64 mt-1">
+            <div class="progress-fill bg-green-500" style="width: 33%"></div>
+          </div>
+          <span class="text-sm text-gray-600">33% concluído</span>
+        </div>
+        <div class="flex space-x-4 text-sm">
+          <div>
+            <span class="font-medium">Total: </span>
+            <span class="text-gray-700">03 atividades</span>
+          </div>
+          <div>
+            <span class="font-medium">Concluídas: </span>
+            <span class="text-green-600">02</span>
+          </div>
+          <div>
+            <span class="font-medium">Pendentes: </span>
+            <span class="text-red-600">01</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activities Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50 section-header">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">ID</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Atividades</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Responsável</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Equipe</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Predecessor</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Início</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Fim</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Duração</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Status</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Fim Real</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">%</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">Obs.</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="activitiesTable" class="bg-white divide-y divide-gray-200">
+          <!-- Section 1 -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Comunicação Visual: Projeto Completo ✔️</span>
+                <button class="text-gray-600 hover:text-red-600 transition" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <!-- Activity Rows -->
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Comunicação Visual: Projeto Completo</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Henrique</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">29/04/2025</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">06/05/2025</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">8</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Concluido</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">06/05/2025</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1">Concluído orçamento</textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          
+          <!-- Nova atividade 1.2 -->
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Aprovação do escopo</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Henrique</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">06/05/2025</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">08/05/2025</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">3</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Concluido</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">08/05/2025</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Nova atividade 1.3 -->
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.3</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Instalação da comunicação visual</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Henrique</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">16/05/2025</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">04/06/2025</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">20</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Em Andamento</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">04/06/2025</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-600 h-2 rounded-full" style="width: 50%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1">Proposto novo ponto de  colocação dos postes de OCR</textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+         <!-- Activity Rows for Section 1... -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="bg-gray-50 px-4 py-3 flex justify-between border-t">
+      <div>
+        <button onclick="salvarDatas()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center transition">
+          <i class="fas fa-save mr-2"></i> Salvar Alterações
+        </button>
+      </div>
+      <div class="flex space-x-2">
+        <button id="exportBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center transition">
+          <i class="fas fa-file-export mr-2"></i> Exportar
+        </button>
+        <button id="printBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center transition">
+          <i class="fas fa-print mr-2"></i> Imprimir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Section Modal -->
+  <div id="sectionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold mb-4">Adicionar Nova Seção</h3>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="sectionName">
+          Nome da Seção
+        </label>
+        <input id="sectionName" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+      </div>
+      <div class="flex justify-end space-x-3">
+        <button id="cancelSectionBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition">
+          Cancelar
+        </button>
+        <button id="confirmSectionBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition">
+          Adicionar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Activity Modal -->
+  <div id="activityModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg p-6 w-full max-w-2xl">
+      <h3 class="text-lg font-bold mb-4">Adicionar Nova Atividade</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityName">
+            Nome da Atividade
+          </label>
+          <input id="activityName" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityResponsible">
+            Responsável
+          </label>
+          <input id="activityResponsible" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityTeam">
+            Equipe
+          </label>
+          <select id="activityTeam" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <option value="T.M">T.M</option>
+            <option value="T.I">T.I</option>
+            <option value="O.P">O.P</option>
+            <option value="ADM">ADM</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityPredecessor">
+            Predecessor
+          </label>
+          <input id="activityPredecessor" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityStart">
+            Data Início
+          </label>
+          <input id="activityStart" type="date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityEnd">
+            Data Fim
+          </label>
+          <input id="activityEnd" type="date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+      </div>
+      <div class="flex justify-end space-x-3">
+        <button id="cancelActivityBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition">
+          Cancelar
+        </button>
+        <button id="confirmActivityBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition">
+          Adicionar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Modal handling
+    const sectionModal = document.getElementById('sectionModal');
+    const activityModal = document.getElementById('activityModal');
+    const addSectionBtn = document.getElementById('addSectionBtn');
+    const addActivityBtn = document.getElementById('addActivityBtn');
+    const cancelSectionBtn = document.getElementById('cancelSectionBtn');
+    const cancelActivityBtn = document.getElementById('cancelActivityBtn');
+    const confirmSectionBtn = document.getElementById('confirmSectionBtn');
+    const confirmActivityBtn = document.getElementById('confirmActivityBtn');
+    const activitiesTable = document.getElementById('activitiesTable');
+
+    // Open section modal
+    addSectionBtn.addEventListener('click', () => {
+      document.getElementById('sectionName').value = '';
+      sectionModal.classList.remove('hidden');
+    });
+
+    // Open activity modal
+    addActivityBtn.addEventListener('click', () => {
+      // Reset form
+      document.getElementById('activityName').value = '';
+      document.getElementById('activityResponsible').value = '';
+      document.getElementById('activityTeam').value = 'T.M';
+      document.getElementById('activityPredecessor').value = '';
+      document.getElementById('activityStart').value = '';
+      document.getElementById('activityEnd').value = '';
+      
+      activityModal.classList.remove('hidden');
+    });
+
+    // Close modals
+    cancelSectionBtn.addEventListener('click', () => sectionModal.classList.add('hidden'));
+    cancelActivityBtn.addEventListener('click', () => activityModal.classList.add('hidden'));
+
+    // Add new section
+    confirmSectionBtn.addEventListener('click', () => {
+      const sectionName = document.getElementById('sectionName').value.trim();
+      if (sectionName) {
+        addNewSection(sectionName);
+        sectionModal.classList.add('hidden');
+      }
+    });
+
+    // Add new activity
+    confirmActivityBtn.addEventListener('click', () => {
+      const activityName = document.getElementById('activityName').value.trim();
+      if (activityName) {
+        addNewActivity();
+        activityModal.classList.add('hidden');
+      }
+    });
+
+    // Function to add new section
+    function addNewSection(name) {
+      const newSection = document.createElement('tr');
+      newSection.className = 'bg-gray-100 font-bold fade-in';
+      newSection.innerHTML = `
+        <td colspan="13" class="px-4 py-2">
+          <div class="flex justify-between items-center">
+            <span>${name}</span>
+            <button class="text-gray-600 hover:text-red-600 transition" onclick="removeSection(this)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </td>
+      `;
+      activitiesTable.appendChild(newSection);
+      saveToLocalStorage();
+    }
+
+    // Function to add new activity
+    function addNewActivity() {
+      const name = document.getElementById('activityName').value;
+      const responsible = document.getElementById('activityResponsible').value;
+      const team = document.getElementById('activityTeam').value;
+      const predecessor = document.getElementById('activityPredecessor').value;
+      const startDate = document.getElementById('activityStart').value;
+      const endDate = document.getElementById('activityEnd').value;
+      
+      // Calculate duration (simple calculation for demo)
+      let duration = 0;
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+      }
+      
+      const newActivity = document.createElement('tr');
+      newActivity.className = 'fade-in';
+      newActivity.innerHTML = `
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">NOVO</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${name}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${responsible}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${team}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${predecessor}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${startDate || ''}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${endDate || ''}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${duration}</td>
+        <td class="px-4 py-2 whitespace-nowrap">
+          <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Sem Resposta</td>
+        <td class="px-4 py-2 whitespace-nowrap">
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-600 h-2 rounded-full" style="width: 0%"></div>
+          </div>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap">
+          <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+          <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </td>
+      `;
+      
+      // Find the last section and insert after it
+      const sections = document.querySelectorAll('tbody tr.bg-gray-100');
+      if (sections.length > 0) {
+        const lastSection = sections[sections.length - 1];
+        lastSection.parentNode.insertBefore(newActivity, lastSection.nextSibling);
+      } else {
+        activitiesTable.appendChild(newActivity);
+      }
+      
+      saveToLocalStorage();
+    }
+
+    // Remove section
+    function removeSection(button) {
+      const sectionRow = button.closest('tr');
+      const nextRow = sectionRow.nextElementSibling;
+      
+      // Remove all activities until next section
+      while (nextRow && !nextRow.classList.contains('bg-gray-100')) {
+        const rowToRemove = nextRow;
+        const newNextRow = nextRow.nextElementSibling;
+        rowToRemove.remove();
+        if (!newNextRow) break;
+        nextRow = newNextRow;
+      }
+      
+      // Remove the section itself
+      sectionRow.remove();
+      saveToLocalStorage();
+    }
+
+    // Remove activity
+    function removeActivity(button) {
+      const row = button.closest('tr');
+      row.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+      setTimeout(() => {
+        row.remove();
+        saveToLocalStorage();
+      }, 300);
+    }
+
+    // Save data to localStorage
+    function saveToLocalStorage() {
+      const data = {
+        sections: [],
+        activities: []
+      };
+      
+      // Get all sections and activities
+      const rows = activitiesTable.querySelectorAll('tr');
+      let currentSection = null;
+      
+      rows.forEach(row => {
+        if (row.classList.contains('bg-gray-100')) {
+          // It's a section
+          currentSection = {
+            name: row.querySelector('td span').textContent,
+            activities: []
+          };
+          data.sections.push(currentSection);
+        } else if (currentSection) {
+          // It's an activity under current section
+          const cells = row.querySelectorAll('td');
+          const activity = {
+            id: cells[0].textContent,
+            name: cells[1].textContent,
+            responsible: cells[2].textContent,
+            team: cells[3].textContent,
+            predecessor: cells[4].textContent,
+            startDate: cells[5].textContent,
+            endDate: cells[6].textContent,
+            duration: cells[7].textContent,
+            status: cells[8].querySelector('span').textContent,
+            realEnd: cells[9].textContent,
+            progress: cells[10].querySelector('div div').style.width,
+            notes: cells[11].querySelector('textarea').value
+          };
+          currentSection.activities.push(activity);
+        }
+      });
+      
+      localStorage.setItem('projectMastecenterData', JSON.stringify(data));
+    }
+
+    // Load data from localStorage
+    function loadFromLocalStorage() {
+      const savedData = localStorage.getItem('projectMastecenterData');
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        activitiesTable.innerHTML = '';
+        
+        data.sections.forEach(section => {
+          // Add section
+          const sectionRow = document.createElement('tr');
+          sectionRow.className = 'bg-gray-100 font-bold';
+          sectionRow.innerHTML = `
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>${section.name}</span>
+                <button class="text-gray-600 hover:text-red-600 transition" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          `;
+          activitiesTable.appendChild(sectionRow);
+          
+          // Add activities for this section
+          section.activities.forEach(activity => {
+            const activityRow = document.createElement('tr');
+            activityRow.className = 'fade-in';
+            activityRow.innerHTML = `
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.id}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.name}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.responsible}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.team}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.predecessor}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.startDate}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.endDate}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.duration}</td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full ${getStatusClass(activity.status)}">${activity.status}</span>
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.realEnd}</td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="bg-green-600 h-2 rounded-full" style="width: ${activity.progress}"></div>
+                </div>
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1">${activity.notes || ''}</textarea>
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
+            `;
+            activitiesTable.appendChild(activityRow);
+          });
+        });
+      }
+    }
+
+    // Helper function to get status class
+    function getStatusClass(status) {
+      if (status.includes('Concluído')) return 'bg-green-100 text-green-800';
+      if (status.includes('Atrasado')) return 'bg-red-100 text-red-800';
+      if (status.includes('Andamento')) return 'bg-blue-100 text-blue-800';
+      return 'bg-yellow-100 text-yellow-800'; // Pendente
+    }
+
+    // Save dates function
+    function salvarDatas() {
+      saveToLocalStorage();
+      alert('Dados salvos com sucesso!');
+    }
+
+    // Export function
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      alert('Funcionalidade de exportação será implementada aqui');
+      // In a real implementation, this would export to Excel or PDF
+    });
+
+    // Print function
+    document.getElementById('printBtn').addEventListener('click', () => {
+      window.print();
+    });
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFromLocalStorage();
+      
+      // Add event listeners to all textareas for auto-save
+      document.addEventListener('input', (e) => {
+        if (e.target.tagName === 'TEXTAREA') {
+          saveToLocalStorage();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

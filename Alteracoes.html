@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Projetos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Minimal custom styles if needed, Tailwind preferred */
+    .highlighted-row-custom { /* Example if Tailwind's yellow isn't exactly what's needed */
+        /* background-color: #ffffcc; */ /* A slightly different yellow */
+    }
+    @media print {
+      body {
+        font-size: 10px;
+      }
+      .no-print {
+        display: none !important;
+      }
+      table {
+        width: 100% !important;
+        font-size: 8px !important; /* Adjusted for potentially more content */
+      }
+      td, th {
+        padding: 2px !important; /* Reduced padding for print */
+        border: 1px solid #ccc !important;
+      }
+      .bg-green-700, .bg-green-600, .bg-gray-50, .bg-gray-200, .bg-gray-100, .bg-yellow-100 {
+        background-color: transparent !important;
+        color: #000 !important;
+      }
+      .text-white {
+        color: #000 !important;
+      }
+      .shadow-md, .rounded-lg {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 p-4 md:p-6">
+  <div class="max-w-screen-2xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+    <!-- Header -->
+    <div class="bg-green-700 text-white p-4 flex flex-wrap justify-between items-center no-print">
+      <div>
+        <a href="javascript:history.back()" class="text-white hover:text-gray-200 transition">
+          <i class="fas fa-arrow-left mr-2"></i> Voltar
+        </a>
+        <h1 class="text-xl md:text-2xl font-bold mt-2">Painel de Projetos</h1>
+      </div>
+      <!-- Placeholder for potential future buttons -->
+      <!-- <div class="flex items-center space-x-2 mt-2 md:mt-0"></div> -->
+    </div>
+
+    <!-- Content -->
+    <div class="overflow-x-auto p-0 md:p-4">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">ID</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[250px]">Atividade</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">Responsável</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Equipe</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Predec.</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Início Prev.</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Fim Prev.</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16 text-center">Dias Prev.</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Fim Real</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">Status / Observações</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            <!-- PROJETO MAXIMINIANO -->
+            <tr class="bg-green-600 text-white">
+                <td colspan="10" class="px-4 py-3 font-bold text-lg text-center">PROJETO MAXIMINIANO</td>
+            </tr>
+            <tr class="bg-gray-100 font-semibold">
+                <td colspan="10" class="px-4 py-2 text-gray-700">Ativação de 01 Cancela de Entrada e 01 de Saída</td>
+            </tr>
+            <tr>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.1</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Construção das infraestruturas das cancelas de entrada e saída</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Janison \ Jarbas</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center"></td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">16/04/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">30/04/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">15</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">28/04/2025</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Ajuste no looping de entrada e de saída</td>
+            </tr>
+            <tr class="bg-yellow-100">
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.2</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Ajuste no looping de entrada e de saída</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Janison \ Jarbas</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.1</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">09/05/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center"></td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center"></td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center"></td>
+                <td class="px-3 py-2 text-sm text-gray-900">Está em vistoria hoje</td>
+            </tr>
+            <tr class="bg-yellow-100">
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.3</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Ativação das duas Cancelas e incremento de controle remoto</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Antônio</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.2</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">30/04/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">02/05/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">3</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">27/05/2025</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Cancelas com placa danificada e outra não sensibilizado, loop danificado.</td>
+            </tr>
+            <tr class="bg-gray-100 font-semibold">
+                <td colspan="10" class="px-4 py-2 text-gray-700">Instalação de CFTV</td>
+            </tr>
+            <tr>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.1</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Construção de infraestrutura com poste para pontos de CFTV</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Janison \ Jarbas</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.2</td> <!-- This was likely meant to be a predecessor, not the target -->
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">16/04/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">30/04/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">15</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">30/04/2025</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Concluído</td>
+            </tr>
+            <tr class="bg-yellow-100">
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.2</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Ativação e configuração de CFTV</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Antônio</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.1</td> <!-- Corrected: this activity depends on 1.1 -->
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">05/05/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">05/05/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">0</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">05/06/2025</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Aguardando OC</td>
+            </tr>
+            <tr class="bg-gray-100 font-semibold">
+                <td colspan="10" class="px-4 py-2 text-gray-700">Comunicação Visual: Projeto Completo</td>
+            </tr>
+            <tr>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.1</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Instalação da comunicação visual</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Luis</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center"></td> <!-- Original was "1", assuming no specific task ID -->
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">28/02/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">24/03/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">25</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">24/03/2025</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Concluído</td>
+            </tr>
+            <tr class="bg-yellow-100">
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.2</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Construção de base do totem</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Janison \ Jart</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center"></td> <!-- Original was "1" -->
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">22/04/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">01/05/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">10</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">14/05/2025</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Prestador de serviço não foi</td>
+            </tr>
+            <tr>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.3</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Correção de valores de placas</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Luis</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center"></td> <!-- Original was "1" -->
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">02/04/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">01/05/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">30</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center"></td>
+                <td class="px-3 py-2 text-sm text-gray-900">Concluído</td>
+            </tr>
+            <tr>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.4</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Material complementar</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Ruar</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center"></td> <!-- Original was "1" -->
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">24/04/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">09/05/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">16</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center"></td>
+                <td class="px-3 py-2 text-sm text-gray-900">Concluído</td>
+            </tr>
+
+            <!-- PROJETO MARTE CENTER -->
+            <tr class="bg-green-600 text-white">
+                <td colspan="10" class="px-4 py-3 font-bold text-lg text-center">PROJETO MARTE CENTER</td>
+            </tr>
+            <tr class="bg-gray-100 font-semibold">
+                <td colspan="10" class="px-4 py-2 text-gray-700">Comunicação Visual: Projeto Completo</td>
+            </tr>
+            <tr>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.1</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Elaboração do projeto</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Henrique</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center"></td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">29/04/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">06/05/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">8</td> <!-- Calculated: 06/05 - 29/04 -->
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">29/04/2025</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Concluído orçamento</td>
+            </tr>
+            <tr class="bg-yellow-100">
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.2</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Aprovação do escopo</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Henrique</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.1</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">06/05/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">08/05/2025</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">3</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">06/05/2025</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Foi encaminhado orçamento para abertura de pedido.</td>
+            </tr>
+            <tr>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.3</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Instalação da comunicação visual</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Henrique</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">1.2</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">TBD</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">TBD</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">0</td>
+                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 text-center">Sem Resposta</td>
+                <td class="px-3 py-2 text-sm text-gray-900">Ainda não encaminhado OC</td>
+            </tr>
+
+            <!-- PROJETO AERO SÃO LUIS -->
+            <tr class="bg-green-600 text-white">
+                <td colspan="10" class="px-4 py-3 font-bold text-lg text-center">PROJETO AERO SÃO LUIS</td>
+            </tr>
+            <tr>
+                <td colspan="10" class="px-4 py-3 text-center italic text-gray-600 bg-gray-100">SEM MUDANÇA</td>
+            </tr>
+
+            <!-- PROJETO TERR CORONEL OTAVIO SILVA -->
+            <tr class="bg-green-600 text-white">
+                <td colspan="10" class="px-4 py-3 font-bold text-lg text-center">PROJETO TERR CORONEL OTAVIO SILVA</td>
+            </tr>
+            <tr>
+                <td colspan="10" class="px-4 py-3 text-center italic text-gray-600 bg-gray-100">SEM MUDANÇA</td>
+            </tr>
+
+            <!-- PROJETO HOSP AEROPORTO BAHIA -->
+            <tr class="bg-green-600 text-white">
+                <td colspan="10" class="px-4 py-3 font-bold text-lg text-center">PROJETO HOSP AEROPORTO BAHIA</td>
+            </tr>
+            <tr>
+                <td colspan="10" class="px-4 py-3 text-center italic text-gray-600 bg-gray-100">SEM MUDANÇA</td>
+            </tr>
+
+        </tbody>
+    </table>
+    </div>
+  </div>
+
+  <script>
+    // Any specific JavaScript for this page can go here.
+    // For example, if "Dias Prev." needs to be dynamically calculated from dates:
+    // function calculateDays(startDateStr, endDateStr) {
+    //   if (!startDateStr || !endDateStr || startDateStr === "TBD" || endDateStr === "TBD") return "";
+    //   const parseDate = (str) => {
+    //     const [day, month, year] = str.split('/');
+    //     return new Date(year, month - 1, day);
+    //   };
+    //   const start = parseDate(startDateStr);
+    //   const end = parseDate(endDateStr);
+    //   if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return "";
+    //   const diffTime = Math.abs(end - start);
+    //   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Inclusive of start and end day
+    //   return diffDays;
+    // }
+    // This calculation is already present in the data, but kept as an example.
+  </script>
+
+</body>
+</html>

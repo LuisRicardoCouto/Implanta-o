@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Analítico - Projetos de Implantação</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .progress-bar {
+            height: 20px;
+            border-radius: 10px;
+            background-color: #e0e0e0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact; /* Chrome, Safari, Edge */
+                color-adjust: exact; /* Firefox */
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-full-width {
+                width: 100% !important;
+                flex: 0 0 100% !important;
+                max-width: 100% !important;
+            }
+            
+            .container {
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+            header, footer, main section {
+                margin-bottom: 1rem !important; /* Adjust spacing for print */
+            }
+            .project-card, .bg-white {
+                box-shadow: none !important;
+                border: 1px solid #eee;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Logo Estapar -->
+         <div class="flex justify-between items-center mb-6">
+            <img src="img/Estapar.png" alt="Logo Estapar" class="h-16">
+        </div>
+
+        <!-- Header -->
+        <header class="mb-10">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Relatório Analítico</h1>
+                    <h2 class="text-xl text-gray-600">Controle de Atividades - Projetos de Implantação</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">Atualizado em: <span
+                            class="font-medium" id="currentDate">07/05/2025</span></span>
+                    <!-- Botão modificado para ser um link -->
+                    <a href="ApresentaçãoCidade.html" id="headerNavigateBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center no-print">
+                        <i class="fas fa-external-link-alt mr-2"></i> Acessar Página
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                    <h3 class="text-gray-500 text-sm font-medium">Total Projetos</h3>
+                    <p class="text-2xl font-bold text-gray-800" id="totalProjetosCount">12</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                    <h3 class="text-gray-500 text-sm font-medium">Concluídos</h3>
+                    <p class="text-2xl font-bold text-gray-800" id="concluidosCount">5</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
+                    <h3 class="text-gray-500 text-sm font-medium">Em Andamento</h3>
+                    <p class="text-2xl font-bold text-gray-800" id="emAndamentoCount">6</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+                    <h3 class="text-gray-500 text-sm font-medium">Atrasados</h3>
+                    <p class="text-2xl font-bold text-gray-800" id="atrasadosCount">1</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Team Performance Section -->
+            <section class="mb-12">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Desempenho das Equipes</h2>
+                    <div class="flex space-x-2 no-print">
+                        <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">TI</button>
+                        <button
+                            class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">Manutenção</button>
+                        <button
+                            class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">Operações</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <!-- TI Team -->
+        <section class="bg-white p-6 rounded-lg shadow">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800">Equipe de TI</h3>
+                    <p class="text-gray-500 text-sm">Mauricio, Leo, Eronildo, Antônio</p>
+                </div>
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Tecnologia</span>
+            </div>
+
+            <div class="mb-4">
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-700">Progresso</span>
+                    <span class="text-sm font-medium text-blue-600">28,57%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill bg-blue-500" style="width: 28.57%"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <p class="text-gray-500 text-sm">Atividades</p>
+                    <p class="font-bold">34</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">Concluídas</p>
+                    <p class="font-bold">00</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">Atrasos</p>
+                    <p class="font-bold">2</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">Eficiência</p>
+                    <p class="font-bold text-yellow-600">11,7%</p>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-sm font-medium text-gray-700 mb-2">Principais Projetos:</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">OCR</span>
+                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">CFTV</span>
+                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">Automação</span>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="Equipedeti.html" class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                </a>
+            </div>
+        </section>
+
+        <!-- Equipe de Manutenção -->
+        <section class="bg-white p-6 rounded-lg shadow">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800">Equipe de Manutenção</h3>
+                    <p class="text-gray-500 text-sm">Janison, Jarbas, Adeildo, John</p>
+                </div>
+                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Infraestrutura</span>
+            </div>
+
+            <div class="mb-4">
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-700">Progresso</span>
+                    <span class="text-sm font-medium text-green-600">43,70%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill bg-green-500" style="width: 43.7%"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <p class="text-gray-500 text-sm">Atividades</p>
+                    <p class="font-bold">42</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">Concluídas</p>
+                    <p class="font-bold">01</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">Atrasos</p>
+                    <p class="font-bold">6</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">Eficiência</p>
+                    <p class="font-bold text-yellow-600">3,8%</p>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-sm font-medium text-gray-700 mb-2">Principais Projetos:</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">Infraestrutura</span>
+                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">Pinturas</span>
+                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">Cancelas</span>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="Equipetm.html" class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                </a>
+            </div>
+        </section>
+    </div>
+</section>
+
+        <!-- Projects Overview -->
+            <section class="mb-12">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Visão Geral dos Projetos</h2>
+                    <div class="relative no-print">
+                        <select
+                            class="appearance-none bg-white border border-gray-300 rounded-lg pl-3 pr-8 py-2 text-sm">
+                            <option>Filtrar por status</option>
+                            <option>Concluídos</option>
+                            <option>Em Andamento</option>
+                            <option>Atrasados</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Project Card 1 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">Hangar</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Área Instagramável, Pick-up Uber, Bate-rodas,
+                                Sinalização</p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">25%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 25%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">24</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">6</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">2</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">120d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/MArcelo.enc"
+                                        alt="Marcelo">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Murilo.enc"
+                                        alt="Murilo">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Luis.jpg"
+                                        alt="Luis">
+                                </div>
+                                <a href="hangar.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Última atualização: 05/06/2025</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                <!-- Project Card 2 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">Civil Trade</h3>
+                                <span class="status-badge bg-green-100 text-green-800">Concluído</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Ativação de OCR, Infraestrutura, Configuração</p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">100%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 100%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">5</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">2</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">2</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">45d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Leo.enc" alt="Leo">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Janinho.enc"
+                                        alt="Janison">
+                                </div>
+                                <a href="CivilTrade.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Concluído em: 06/05/2025</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 3 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">Hospital Português</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Maternidade, Pinturas, OCR's, Infraestrutura</p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">13%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 13%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">8</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">3</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">1</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">90d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Andre.enc"
+                                        alt="André">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Gilson.jpg"
+                                        alt="Gilson">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Murilo.enc"
+                                        alt="Murilo">
+                                </div>
+                                <a href="Hospportugues.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Última atualização: 06/05/2025</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                                <span class="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded-full">OP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 4 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">Hospital Aeroporto</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-700">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Comunicação Visual: Projeto Basico, Equipamentos Auxiliares </p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">10%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 10%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">00</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">90d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Luis.jpg"
+                                        alt="Luis">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Andre.enc"
+                                        alt="André">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Murilo.enc"
+                                        alt="Murilo">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/MArcelo.enc"
+                                        alt="Marcelo">
+                                </div>
+                                <a href="HospAeroporto.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Atraso: 20 dias</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 5 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">Liz Empresarial</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-700">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Comunicação Visual: Projeto Completo, Equipamentos Auxiliares </p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">00%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 00%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">08</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">90d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Luis.jpg"
+                                        alt="Luis">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Andre.enc"
+                                        alt="André">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Murilo.enc"
+                                        alt="Murilo">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/MArcelo.enc"
+                                        alt="Marcelo">
+                                </div>
+                                <a href="Lizempresarial.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Atraso: 20 dias</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 6 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">Shopping Cidade Verde</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Ativação de OCR</p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">71%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 71%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">03</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">1</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">2</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">75d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Eronildo.jpg"
+                                        alt="Eronildo">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Luis.jpg"
+                                        alt="Luis">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Leandro.enc"
+                                        alt="Leandro">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Murilo.enc"
+                                        alt="Murilo">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                </div>
+                                <a href="Shopcidade.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Atraso: 20 dias</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 7 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">APODI</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Cancelas, Comunicação Visual, CFTV </p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">45%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width:45%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">17</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">2</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">60d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Janinho.enc"
+                                        alt="Janison">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Jarbas.enc"
+                                        alt="Jarbas">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                </div>
+                                <a href="apodi3.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Última atualização: 06/05/2025</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 8 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">Unimed Natal</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Ativação da automação e PDV , Comunicação Visual, Ativação de CFTV </p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">45%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width:45%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">13</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">13</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">75d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Janinho.enc"
+                                        alt="Janison">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Jarbas.enc"
+                                        alt="Jarbas">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                </div>
+                                <a href="apodi3.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Última atualização: 06/05/2025</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 9 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">Terreno Maximiniano</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Cancelas, Comunicação visual, CFTV</p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">56%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 56%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">08</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">4</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">2</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">90d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Janinho.enc"
+                                        alt="Janison">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Murilo.enc"
+                                        alt="Murilo">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Carlos.jpg"
+                                        alt="Carlos">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Antonio.enc"
+                                        alt="Antonio">
+                                </div>
+                                <a href="terrenomaximi.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Concluído em: 30/05/2025</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 10 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">Fujisan</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Instalação de 02 Cancelas, Instalação de CFTV,
+                                Comunciação Visual, OCR, Infraestrutura</p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">17%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 17%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">06</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">75d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Janinho.enc"
+                                        alt="Janison">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Luis.jpg"
+                                        alt="Luis">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Carlos.jpg"
+                                        alt="Carlos">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Jarbas.enc"
+                                        alt="Jarbas">
+                                </div>
+                                <a href="fujisan.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Atraso: 20 dias</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+
+                    <!-- Project Card 11 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">Aero São Luis</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Troca de Refletores, Comunicação Visual: Projeto
+                                Completo, Revitalização dos acessos</p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">04%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 04%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">17</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">2</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">60d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Janinho.enc"
+                                        alt="Janison">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Jarbas.enc"
+                                        alt="Jarbas">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                </div>
+                                <a href="aerosãoluis.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Última atualização: 06/05/2025</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 12 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">Marte Center</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Comunicação Visual</p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">33%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 33%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">01</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">60d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Janinho.enc"
+                                        alt="Janison">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Jarbas.enc"
+                                        alt="Jarbas">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Antonio.enc"
+                                        alt="Antonio">
+                                </div>
+                                <a href="MasteCenter.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Última atualização: 06/05/2025</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 13 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">Terreno Coronel Otavio</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Instalação de terminais e cancelas, Instalação de CFTV, Comunicação Visual: Basico, Equipamentos Auxiliares</p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">10%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 10%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">12</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">60d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Janinho.enc"
+                                        alt="Janison">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Jarbas.enc"
+                                        alt="Jarbas">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Antonio.enc"
+                                        alt="Antonio">
+                                </div>
+                                <a href="terrcoronel2.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Última atualização: 06/05/2025</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 14 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">PROJETO PEDRO CAVALCANTI</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Instalação de terminais e cancelas, Instalação de CFTV, Comunicação Visual: Basico, Equipamentos Auxiliares</p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">60%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 60%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">05</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">60d</p>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Janinho.enc"
+                                        alt="Janison">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Jarbas.enc"
+                                        alt="Jarbas">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Antonio.enc"
+                                        alt="Antonio">
+                                </div>
+                                <a href="Pedrocavelcanti.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Última atualização: 06/05/2025</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Card 14 -->
+                    <div class="project-card bg-white rounded-lg shadow overflow-hidden transition-all duration-300 print-full-width">
+                         <div class="p-5"> <!-- Changed p-11 to p-5 for consistency, original was p-11 -->
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-lg text-gray-800">BS DESIGN</h3>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Em Andamento</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Bolsão de motos 2° subsolo, Piso antiderrapante para
+                                os pisos subsolos 1, 2 e 3, Realocação das ilhas existentes da R. Torres Câmera,
+                                Colocação de OCR para saída de S3 para S2, Comunicação Visual</p>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progresso</span>
+                                    <span class="font-medium">13%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-green-200" style="width: 13%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-gray-500">Atividades</p>
+                                    <p class="font-medium">14</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Concluídas</p>
+                                    <p class="font-medium">1</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Atrasos</p>
+                                    <p class="font-medium">6</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Duração</p>
+                                    <p class="font-medium">40d</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex -space-x-2">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Janinho.enc"
+                                        alt="Janison">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Jarbas.enc"
+                                        alt="Jarbas">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Mauricio.enc"
+                                        alt="Mauricio">
+                                    <img class="w-8 h-8 rounded-full border-2 border-white" src="img/Antonio.enc"
+                                        alt="Antonio">
+                                </div>
+                                <a href="Bsdesign.html"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center no-print">
+                                    Detalhes <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Concluído em: 30/05/2025</span> <!-- This seems like a mixup, as status is "Em Andamento" -->
+                            <div class="flex space-x-2">
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">TI</span>
+                                <span
+                                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-12 pt-8 border-t border-gray-200">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="text-lg font-medium text-gray-800">Relatório Analítico</h3>
+                    <p class="text-sm text-gray-600">Controle de Atividades - Projetos de Implantação</p>
+                </div>
+                <div class="flex space-x-6 no-print">
+                    <a href="#" id="footerExportPdfBtn" class="text-gray-500 hover:text-gray-700" title="Gerar PDF">
+                        <i class="fas fa-file-pdf"></i>
+                    </a>
+                    <a href="#" id="footerExportExcelBtn" class="text-gray-500 hover:text-gray-700" title="Exportar Excel (Indisponível)">
+                        <i class="fas fa-file-excel"></i>
+                    </a>
+                    <a href="#" id="footerPrintBtn" class="text-gray-500 hover:text-gray-700" title="Imprimir">
+                        <i class="fas fa-print"></i>
+                    </a>
+                    <a href="#" id="footerShareBtn" class="text-gray-500 hover:text-gray-700" title="Compartilhar">
+                        <i class="fas fa-share-alt"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="mt-6 text-center md:text-left text-sm text-gray-500">
+                <p>© 2025 Luis Ricardo Couto. Todos os direitos reservados.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Simulate loading for progress bars
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+
+            // Update dynamic data in the header (date and project counts)
+            function updateDashboardStats() {
+                // Update date
+                const currentDateEl = document.getElementById('currentDate');
+                if (currentDateEl) {
+                    const today = new Date();
+                    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+                    currentDateEl.textContent = today.toLocaleDateString('pt-BR', options);
+                }
+
+                const projectCards = document.querySelectorAll('.project-card');
+                let totalProjetos = projectCards.length;
+                let concluidos = 0;
+                let emAndamento = 0;
+                let atrasados = 0;
+
+                projectCards.forEach(card => {
+                    const statusBadge = card.querySelector('.status-badge');
+                    const footerStatusTextEl = card.querySelector('.bg-gray-50 > span.text-xs.text-gray-500:first-child');
+                    
+                    let statusText = '';
+                    let footerText = '';
+
+                    if (statusBadge) {
+                        statusText = statusBadge.textContent.trim();
+                    }
+                    if (footerStatusTextEl) {
+                        footerText = footerStatusTextEl.textContent.trim();
+                    }
+
+                    if (statusText === 'Concluído') {
+                        concluidos++;
+                    } else if (statusText === 'Em Andamento') {
+                        emAndamento++;
+                        // Check if an "Em Andamento" project is also marked as Atrasado in its footer
+                        if (footerText.includes('Atraso:')) {
+                            // To avoid double-counting in the 'atrasados' specific counter if it's already counted below
+                            // This logic is now handled in a separate loop for 'atrasados' for clarity
+                        }
+                    } 
+                    // If there was an explicit "Atrasado" status badge, it would be handled in the atrasados loop below
+                });
+                
+                // Recalculate atrasados with a clear logic
+                atrasados = 0; // Reset before specific counting
+                projectCards.forEach(card => {
+                    const statusBadge = card.querySelector('.status-badge');
+                    const footerStatusTextEl = card.querySelector('.bg-gray-50 > span.text-xs.text-gray-500:first-child');
+                    let statusText = statusBadge ? statusBadge.textContent.trim() : '';
+                    let footerText = footerStatusTextEl ? footerStatusTextEl.textContent.trim() : '';
+
+                    // Condition for being "Atrasado" for the summary
+                    // 1. Has an explicit "Atrasado" status badge (e.g., bg-red-100 text-red-800 "Atrasado")
+                    // 2. Or is "Em Andamento" AND its footer text (first span) indicates an atraso.
+                    if (statusText === 'Atrasado') { // For explicit "Atrasado" status badge
+                        atrasados++;
+                    } else if (statusText === 'Em Andamento' && footerText.includes('Atraso:')) {
+                        atrasados++;
+                    }
+                });
+
+
+                // Update DOM elements for counts
+                const totalProjetosCountEl = document.getElementById('totalProjetosCount');
+                if (totalProjetosCountEl) totalProjetosCountEl.textContent = totalProjetos.toString().padStart(2, '0');
+
+                const concluidosCountEl = document.getElementById('concluidosCount');
+                if (concluidosCountEl) concluidosCountEl.textContent = concluidos.toString().padStart(2, '0');
+
+                const emAndamentoCountEl = document.getElementById('emAndamentoCount');
+                if (emAndamentoCountEl) emAndamentoCountEl.textContent = emAndamento.toString().padStart(2, '0');
+                
+                const atrasadosCountEl = document.getElementById('atrasadosCount');
+                if (atrasadosCountEl) atrasadosCountEl.textContent = atrasados.toString().padStart(2, '0');
+            }
+
+            updateDashboardStats(); // Call it once on load to set initial dynamic values
+
+            // Footer and Header Action Buttons
+            const headerExportBtn = document.getElementById('headerExportBtn');
+            if (headerExportBtn) {
+                headerExportBtn.addEventListener('click', function() {
+                    window.print();
+                });
+            }
+
+            const footerExportPdfBtn = document.getElementById('footerExportPdfBtn');
+            if (footerExportPdfBtn) {
+                footerExportPdfBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    window.print();
+                });
+            }
+
+            const footerExportExcelBtn = document.getElementById('footerExportExcelBtn');
+            if (footerExportExcelBtn) {
+                footerExportExcelBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    alert('A funcionalidade de exportar para Excel ainda não está implementada. Você pode tentar "Salvar como PDF" e converter, ou copiar os dados manualmente.');
+                });
+            }
+
+            const footerPrintBtn = document.getElementById('footerPrintBtn');
+            if (footerPrintBtn) {
+                footerPrintBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    window.print();
+                });
+            }
+
+            const footerShareBtn = document.getElementById('footerShareBtn');
+            if (footerShareBtn) {
+                footerShareBtn.addEventListener('click', async function(event) {
+                    event.preventDefault();
+                    const shareData = {
+                        title: document.title,
+                        text: 'Confira este Relatório Analítico de Projetos de Implantação!',
+                        url: window.location.href
+                    };
+                    try {
+                        if (navigator.share) {
+                            await navigator.share(shareData);
+                            console.log('Conteúdo compartilhado com sucesso!');
+                        } else {
+                            if (navigator.clipboard) {
+                                navigator.clipboard.writeText(shareData.url).then(function() {
+                                    alert('Link copiado para a área de transferência! API de compartilhamento não suportada.');
+                                }, function(err) {
+                                    alert('API de compartilhamento não suportada. Copie o link manualmente: ' + shareData.url);
+                                });
+                            } else {
+                                alert('API de compartilhamento não suportada. Copie o link manualmente: ' + shareData.url);
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Erro ao compartilhar:', err);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

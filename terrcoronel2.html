@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Atividades - Projeto Terr Coronel Otavio Silva</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .section-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .progress-bar {
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: white;
+    }
+    textarea {
+      resize: none;
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Styling for date inputs in table */
+    td input[type="date"] {
+        min-width: 120px; /* Ensure enough space for date picker icon */
+        padding: 0.25rem 0.5rem;
+        border: 1px solid #e2e8f0; /* Tailwind gray-300 */
+        border-radius: 0.25rem;
+        font-size: 0.875rem; /* text-sm */
+        box-sizing: border-box;
+    }
+    td input[type="date"]:focus {
+        outline: none;
+        border-color: #3b82f6; /* Tailwind blue-500 */
+        box-shadow: 0 0 0 1px #3b82f6;
+    }
+    td input[type="date"]::placeholder { /* Style for TBD placeholder */
+        color: #9ca3af; /* Tailwind gray-400 */
+        font-style: italic;
+    }
+
+
+    @media print {
+      body {
+        font-size: 10px;
+      }
+      .section-header, .no-print {
+        display: none !important;
+      }
+      table {
+        width: 100% !important;
+        font-size: 9px !important;
+      }
+      td, th {
+        padding: 3px !important;
+      }
+      textarea {
+        border: 1px solid #ccc !important;
+        min-height: 20px !important;
+        background-color: #fff !important;
+        color: #000 !important;
+      }
+      td input[type="date"] { /* Print style for date inputs */
+        border: none !important;
+        padding: 1px !important;
+        background-color: transparent !important;
+        color: #000 !important;
+        width: auto !important; /* Let content decide width */
+      }
+      td input[type="date"]::placeholder {
+        color: #000 !important; /* Make placeholder visible in print */
+      }
+      .progress-bar {
+        background-color: #e5e7eb !important;
+        border: 1px solid #ccc;
+      }
+      .progress-fill {
+        background-color: #22c55e !important;
+        color: black !important;
+      }
+      .bg-green-700, .bg-blue-600, .bg-gray-600, .bg-green-600, .bg-gray-100, .bg-gray-50,
+      .bg-yellow-100, .text-yellow-800, .bg-yellow-500 {
+        background-color: transparent !important;
+        color: #000 !important;
+      }
+      .text-white {
+        color: #000 !important;
+      }
+      .shadow-md, .rounded-lg {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 p-4 md:p-6">
+  <div class="max-w-screen-2xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+    <!-- Header -->
+    <div class="bg-green-700 text-white p-4 flex flex-wrap justify-between items-center no-print">
+      <div>
+        <a href="javascript:history.back()" class="text-white hover:text-gray-200 transition">
+          <i class="fas fa-arrow-left mr-2"></i> Voltar
+        </a>
+        <h1 class="text-xl md:text-2xl font-bold mt-2">CONTROLE DE ATIVIDADES DO PROJETO TERR CORONEL OTAVIO SILVA</h1>
+        <p class="text-sm mt-1">Prazo: 15/05</p>
+      </div>
+      <div class="flex items-center space-x-2 mt-2 md:mt-0">
+        <button id="addSectionBtn" class="bg-green-600 hover:bg-green-800 text-white px-3 py-1 rounded-md text-sm flex items-center transition">
+          <i class="fas fa-plus mr-1"></i> Seção
+        </button>
+        <button id="addActivityBtn" class="bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm flex items-center transition">
+          <i class="fas fa-plus mr-1"></i> Atividade
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress Summary -->
+    <div class="bg-gray-100 p-3 border-b no-print">
+      <div class="flex flex-wrap items-center justify-between">
+        <div class="w-full md:w-auto mb-2 md:mb-0">
+          <h3 class="font-semibold text-gray-700">Progresso Geral</h3>
+          <div class="progress-bar bg-gray-300 w-full md:w-64 mt-1">
+            <div id="geralProgressFill" class="progress-fill bg-green-500" style="width: 0%">0%</div>
+          </div>
+          <span id="geralProgressText" class="text-sm text-gray-600">0% concluído</span>
+        </div>
+        <div class="flex space-x-4 text-sm">
+          <div>
+            <span class="font-medium">Total: </span>
+            <span id="totalActivities" class="text-gray-700">0 atividades</span>
+          </div>
+          <div>
+            <span class="font-medium">Concluídas: </span>
+            <span id="completedActivities" class="text-green-600">0</span>
+          </div>
+          <div>
+            <span class="font-medium">Pendentes: </span>
+            <span id="pendingActivities" class="text-red-600">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activities Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50 section-header">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">ID</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Atividades</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Responsável</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Equipe</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Predecessor</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Início</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Fim</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Duração em dias</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Farol</th> <!-- Image: Farol -->
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Fim Real</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">% Concluído</th> <!-- Image: % Concluído -->
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">Obs.</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20 no-print">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="activitiesTable" class="bg-white divide-y divide-gray-200">
+          <!-- Section 1: Instalação de terminais e cancelas -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Instalação de terminais e cancelas ✔️</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Fixação dos terminais</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison \ Jarbas</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Fixação das Cancelas</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison \ Jarbas</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.3</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Verificação e ativação das cancelas</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Antônio</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.I</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Section 2: Instalação de CFTV -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Instalação de CFTV ✔️</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td> <!-- ID should be 2.1 if it's a new section -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Infraestrutura para os pontos de câmeras</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison \ Jarbas</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td> <!-- ID should be 2.2 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Fixação dos postes de câmeras</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison \ Jarbas</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.3</td> <!-- ID should be 2.3 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Ativação dos pontos de câmeras</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Antônio</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.I</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td> <!-- Should be 2.2 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+           <!-- Section 3: Comunicação Visual: Basico -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Comunicação Visual: Basico ✔️</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td> <!-- ID should be 3.1 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Elaboração do projeto</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Ruan</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td> <!-- ID should be 3.2 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Orçamentação e planejamento</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Ruan</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td> <!-- Should be 3.1 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.3</td> <!-- ID should be 3.3 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Acompanhamento de fabricação e instalação</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Ruan</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td> <!-- Should be 3.2 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Section 4: Equipamentos Auxiliares -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Equipamentos Auxiliares ✔️</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td> <!-- ID should be 4.1 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Elaboração orçamentaria</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Ruan</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td> <!-- ID should be 4.2 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Aprovação do escopo</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Ruan</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td> <!-- Should be 4.1 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.3</td> <!-- ID should be 4.3 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Envio dos equipamentos</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Carlos \ Ruan</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td> <!-- Should be 4.2 -->
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full" placeholder="TBD"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="bg-gray-50 px-4 py-3 flex justify-between border-t no-print">
+      <div>
+        <button onclick="salvarAlteracoes()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center transition">
+          <i class="fas fa-save mr-2"></i> Salvar Alterações
+        </button>
+      </div>
+      <div class="flex space-x-2">
+        <button id="exportBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center transition">
+          <i class="fas fa-file-export mr-2"></i> Exportar
+        </button>
+        <button id="printBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center transition">
+          <i class="fas fa-print mr-2"></i> Imprimir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Section Modal (No changes needed) -->
+  <div id="sectionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden no-print">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold mb-4">Adicionar Nova Seção</h3>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="sectionName">
+          Nome da Seção
+        </label>
+        <input id="sectionName" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+      </div>
+      <div class="flex justify-end space-x-3">
+        <button id="cancelSectionBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition">
+          Cancelar
+        </button>
+        <button id="confirmSectionBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition">
+          Adicionar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Activity Modal (No changes needed here, dates are already inputs) -->
+  <div id="activityModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden no-print">
+    <div class="bg-white rounded-lg p-6 w-full max-w-2xl">
+      <h3 class="text-lg font-bold mb-4">Adicionar Nova Atividade</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityId">
+            ID da Atividade (ex: 3.1)
+          </label>
+          <input id="activityId" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Auto (ou manual)">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityName">
+            Nome da Atividade
+          </label>
+          <input id="activityName" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityResponsible">
+            Responsável
+          </label>
+          <input id="activityResponsible" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityTeam">
+            Equipe
+          </label>
+          <select id="activityTeam" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <option value="T.M">T.M (Terceiros Manutenção)</option>
+            <option value="T.I">T.I (Tecnologia da Informação)</option>
+            <option value="O.P">O.P (Operações)</option>
+            <option value="I.P">I.P (Infra Predial)</option>
+            <option value="ADM">ADM (Administrativo)</option>
+            <option value="">N/A ou Outra</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityPredecessor">
+            Predecessor (ID)
+          </label>
+          <input id="activityPredecessor" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityStart">
+            Data Início
+          </label>
+          <input id="activityStart" type="date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityEnd">
+            Data Fim
+          </label>
+          <input id="activityEnd" type="date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+         <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityStatus">
+            Status
+          </label>
+          <select id="activityStatus" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <option value="Pendente">Pendente</option>
+            <option value="Em Andamento">Em Andamento</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Atrasado">Atrasado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityRealEnd">
+            Data Fim Real
+          </label>
+          <input id="activityRealEnd" type="date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+         <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityProgress">
+            % Concluído
+          </label>
+          <input id="activityProgress" type="number" min="0" max="100" value="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="activityNotes">
+          Observações
+        </label>
+        <textarea id="activityNotes" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="2"></textarea>
+      </div>
+      <div class="flex justify-end space-x-3">
+        <button id="cancelActivityBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition">
+          Cancelar
+        </button>
+        <button id="confirmActivityBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition">
+          Adicionar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const LS_KEY = 'projectTerrCoronelOtavioSilvaData'; // Changed LS_KEY
+    const sectionModal = document.getElementById('sectionModal');
+    const activityModal = document.getElementById('activityModal');
+    const addSectionBtn = document.getElementById('addSectionBtn');
+    const addActivityBtn = document.getElementById('addActivityBtn');
+    const cancelSectionBtn = document.getElementById('cancelSectionBtn');
+    const cancelActivityBtn = document.getElementById('cancelActivityBtn');
+    const confirmSectionBtn = document.getElementById('confirmSectionBtn');
+    const confirmActivityBtn = document.getElementById('confirmActivityBtn');
+    const activitiesTableBody = document.getElementById('activitiesTable');
+
+    function calculateDuration(startDateStr_YYYYMMDD, endDateStr_YYYYMMDD) {
+        if (!startDateStr_YYYYMMDD || !endDateStr_YYYYMMDD) return 0;
+        
+        const start = new Date(startDateStr_YYYYMMDD + "T00:00:00"); 
+        const end = new Date(endDateStr_YYYYMMDD + "T00:00:00");   
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return 0;
+        
+        // Calculate difference in days. Add 1 to include both start and end date.
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+        return diffDays;
+    }
+
+    addSectionBtn.addEventListener('click', () => {
+      document.getElementById('sectionName').value = '';
+      sectionModal.classList.remove('hidden');
+    });
+
+    addActivityBtn.addEventListener('click', () => {
+      document.getElementById('activityId').value = generateNextActivityId();
+      document.getElementById('activityName').value = '';
+      document.getElementById('activityResponsible').value = '';
+      document.getElementById('activityTeam').value = 'T.M'; // Default team
+      document.getElementById('activityPredecessor').value = '';
+      document.getElementById('activityStart').value = ''; 
+      document.getElementById('activityEnd').value = '';   
+      document.getElementById('activityStatus').value = 'Pendente'; // Default status
+      document.getElementById('activityRealEnd').value = ''; 
+      document.getElementById('activityProgress').value = '0'; // Default progress
+      document.getElementById('activityNotes').value = '';
+      activityModal.classList.remove('hidden');
+    });
+
+    cancelSectionBtn.addEventListener('click', () => sectionModal.classList.add('hidden'));
+    cancelActivityBtn.addEventListener('click', () => activityModal.classList.add('hidden'));
+
+    confirmSectionBtn.addEventListener('click', () => {
+      const sectionName = document.getElementById('sectionName').value.trim();
+      if (sectionName) {
+        addNewSectionToDOM(sectionName);
+        sectionModal.classList.add('hidden');
+        saveToLocalStorage();
+        updateSummary();
+      }
+    });
+
+    confirmActivityBtn.addEventListener('click', () => {
+      const activityName = document.getElementById('activityName').value.trim();
+      if (activityName) {
+        addNewActivityToDOM();
+        activityModal.classList.add('hidden');
+        saveToLocalStorage();
+        updateSummary();
+      }
+    });
+
+    function generateNextActivityId() {
+        const sections = activitiesTableBody.querySelectorAll('tr.bg-gray-100');
+        if (sections.length === 0) return "1.1"; 
+        
+        const lastSectionRow = sections[sections.length - 1];
+        let sectionIndex = 0;
+        let currentSection = lastSectionRow;
+        // Count previous sections to determine the current section index
+        let tempSection = activitiesTableBody.firstElementChild;
+        while(tempSection && tempSection !== lastSectionRow) {
+            if(tempSection.classList.contains('bg-gray-100')) {
+                sectionIndex++;
+            }
+            tempSection = tempSection.nextElementSibling;
+        }
+        sectionIndex++; // Current section index (1-based)
+
+
+        let activityCount = 0;
+        let currentRow = lastSectionRow.nextElementSibling;
+        while (currentRow && !currentRow.classList.contains('bg-gray-100')) {
+            activityCount++;
+            currentRow = currentRow.nextElementSibling;
+        }
+        return `${sectionIndex}.${activityCount + 1}`;
+    }
+
+    function addNewSectionToDOM(name) {
+      const newSection = document.createElement('tr');
+      newSection.className = 'bg-gray-100 font-bold fade-in';
+      newSection.innerHTML = `
+        <td colspan="13" class="px-4 py-2">
+          <div class="flex justify-between items-center">
+            <span>${name}</span>
+            <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </td>
+      `;
+      activitiesTableBody.appendChild(newSection);
+    }
+
+    function addNewActivityToDOM() {
+      const id = document.getElementById('activityId').value || generateNextActivityId();
+      const name = document.getElementById('activityName').value;
+      const responsible = document.getElementById('activityResponsible').value;
+      const team = document.getElementById('activityTeam').value;
+      const predecessor = document.getElementById('activityPredecessor').value;
+      const startDate_YYYYMMDD = document.getElementById('activityStart').value; 
+      const endDate_YYYYMMDD = document.getElementById('activityEnd').value;     
+      const status = document.getElementById('activityStatus').value;
+      const realEnd_YYYYMMDD = document.getElementById('activityRealEnd').value; 
+      const progress = document.getElementById('activityProgress').value;
+      const notes = document.getElementById('activityNotes').value;
+
+      const duration = calculateDuration(startDate_YYYYMMDD, endDate_YYYYMMDD);
+      const statusInfo = getStatusInfo(status, progress);
+      
+      const newActivity = document.createElement('tr');
+      newActivity.className = 'fade-in';
+      newActivity.innerHTML = `
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${id}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${name}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${responsible}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${team}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${predecessor}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="${startDate_YYYYMMDD}" class="activity-date-start w-full" placeholder="TBD"></td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="${endDate_YYYYMMDD}" class="activity-date-end w-full" placeholder="TBD"></td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${duration}</td>
+        <td class="px-4 py-2 whitespace-nowrap">
+          <span class="px-2 py-1 text-xs rounded-full ${statusInfo.cssClass}">${statusInfo.text}</span>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="${realEnd_YYYYMMDD}" class="activity-date-real-end w-full"></td>
+        <td class="px-4 py-2 whitespace-nowrap">
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="${statusInfo.progressClass} h-2 rounded-full" style="width: ${progress}%"></div>
+          </div>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap">
+          <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1">${notes}</textarea>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+          <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </td>
+      `;
+      
+      const sections = activitiesTableBody.querySelectorAll('tr.bg-gray-100');
+      if (sections.length > 0) {
+        const lastSection = sections[sections.length - 1];
+        let insertAfter = lastSection;
+        let current = lastSection.nextElementSibling;
+        while(current && !current.classList.contains('bg-gray-100')) {
+            insertAfter = current;
+            current = current.nextElementSibling;
+        }
+        insertAfter.parentNode.insertBefore(newActivity, insertAfter.nextSibling);
+      } else { 
+        alert("Por favor, adicione uma seção primeiro.");
+      }
+    }
+
+    function removeSection(button) {
+      const sectionRow = button.closest('tr');
+      let nextRow = sectionRow.nextElementSibling;
+      if (!confirm(`Tem certeza que deseja remover a seção "${sectionRow.querySelector('td span').textContent}" e todas as suas atividades?`)) {
+        return;
+      }
+      while (nextRow && !nextRow.classList.contains('bg-gray-100')) {
+        const rowToRemove = nextRow;
+        nextRow = nextRow.nextElementSibling; 
+        rowToRemove.remove();
+      }
+      sectionRow.remove();
+      saveToLocalStorage();
+      updateSummary();
+    }
+
+    function removeActivity(button) {
+      const row = button.closest('tr');
+      if (!confirm(`Tem certeza que deseja remover a atividade "${row.cells[1].textContent}"?`)) {
+        return;
+      }
+      row.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+      setTimeout(() => {
+        row.remove();
+        saveToLocalStorage();
+        updateSummary();
+      }, 300);
+    }
+
+    function getStatusInfo(statusText, progressPercent) {
+        let cssClass = 'bg-yellow-100 text-yellow-800'; 
+        let progressClass = 'bg-yellow-500';
+        let text = statusText || 'Pendente';
+        const progress = parseInt(progressPercent) || 0;
+
+        if (statusText) {
+            const lowerStatus = statusText.toLowerCase();
+            if (lowerStatus.includes('concluído')) {
+                cssClass = 'bg-green-100 text-green-800';
+                progressClass = 'bg-green-600';
+            } else if (lowerStatus.includes('atrasado')) {
+                cssClass = 'bg-red-100 text-red-800';
+                progressClass = 'bg-red-500';
+            } else if (lowerStatus.includes('andamento')) {
+                cssClass = 'bg-blue-100 text-blue-800';
+                progressClass = 'bg-blue-500';
+            } else if (lowerStatus.includes('cancelado')) {
+                cssClass = 'bg-gray-200 text-gray-700';
+                progressClass = 'bg-gray-400';
+            } else if (lowerStatus.includes('pendente')) {
+                 cssClass = 'bg-yellow-100 text-yellow-800';
+                 progressClass = 'bg-yellow-500';
+            }
+        }
+        
+        // Override based on progress if status is not conclusive
+        if (progress === 100 && !text.toLowerCase().includes('cancelado')) {
+            cssClass = 'bg-green-100 text-green-800';
+            progressClass = 'bg-green-600';
+            text = 'Concluído';
+        } else if (progress > 0 && progress < 100 && (text.toLowerCase().includes('pendente') || !statusText || text.toLowerCase().includes('atrasado'))) {
+            // If progress started, and not yet complete, it's 'Em Andamento' unless explicitly 'Atrasado'
+            if (!text.toLowerCase().includes('atrasado')) {
+                 text = 'Em Andamento';
+                 cssClass = 'bg-blue-100 text-blue-800';
+                 progressClass = 'bg-blue-500';
+            }
+        } else if (progress === 0 && text.toLowerCase() === 'em andamento') { // If modal set to em andamento but 0%
+            text = 'Pendente'; // Revert to Pendente if 0%
+            cssClass = 'bg-yellow-100 text-yellow-800';
+            progressClass = 'bg-yellow-500';
+        }
+
+
+        return { text, cssClass, progressClass };
+    }
+
+    function saveToLocalStorage() {
+      const data = { sections: [] };
+      const rows = activitiesTableBody.querySelectorAll('tr');
+      let currentSectionData = null;
+      
+      rows.forEach(row => {
+        if (row.classList.contains('bg-gray-100')) {
+          currentSectionData = {
+            name: row.querySelector('td span').textContent,
+            activities: []
+          };
+          data.sections.push(currentSectionData);
+        } else if (currentSectionData) {
+          const cells = row.querySelectorAll('td');
+          const activity = {
+            id: cells[0].textContent,
+            name: cells[1].textContent,
+            responsible: cells[2].textContent,
+            team: cells[3].textContent,
+            predecessor: cells[4].textContent,
+            startDate: cells[5].querySelector('input[type="date"].activity-date-start').value, 
+            endDate: cells[6].querySelector('input[type="date"].activity-date-end').value,   
+            duration: cells[7].textContent,
+            status: cells[8].querySelector('span').textContent, // Farol text
+            realEnd: cells[9].querySelector('input[type="date"].activity-date-real-end').value,   
+            progress: cells[10].querySelector('div div').style.width.replace('%',''),
+            notes: cells[11].querySelector('textarea').value
+          };
+          currentSectionData.activities.push(activity);
+        }
+      });
+      localStorage.setItem(LS_KEY, JSON.stringify(data));
+    }
+
+    function loadFromLocalStorage() {
+      const savedData = localStorage.getItem(LS_KEY);
+      const initialHTMLActivityRows = Array.from(activitiesTableBody.querySelectorAll('tr:not(.bg-gray-100)'));
+
+      if (!savedData && initialHTMLActivityRows.length > 0) { 
+         // Correct IDs for initial HTML based on section.
+         // Also ensure duration is calculated for any initially hardcoded dates (though here, they are TBD).
+         let sectionCounter = 0;
+         let activityCounter = 0;
+         Array.from(activitiesTableBody.children).forEach(row => {
+            if (row.classList.contains('bg-gray-100')) {
+                sectionCounter++;
+                activityCounter = 0;
+            } else {
+                activityCounter++;
+                row.cells[0].textContent = `${sectionCounter}.${activityCounter}`; // Correct ID
+                
+                const startDateInput = row.cells[5].querySelector('input.activity-date-start');
+                const endDateInput = row.cells[6].querySelector('input.activity-date-end');
+                row.cells[7].textContent = calculateDuration(startDateInput.value, endDateInput.value);
+
+                const statusText = row.cells[8].querySelector('span').textContent;
+                const progressPercent = row.cells[10].querySelector('div div').style.width.replace('%', '');
+                const statusInfo = getStatusInfo(statusText, progressPercent);
+                row.cells[8].querySelector('span').textContent = statusInfo.text;
+                row.cells[8].querySelector('span').className = `px-2 py-1 text-xs rounded-full ${statusInfo.cssClass}`;
+                row.cells[10].querySelector('div div').className = `${statusInfo.progressClass} h-2 rounded-full`;
+
+            }
+         });
+         updateSummary(); 
+         saveToLocalStorage(); // Save the corrected initial state
+         return; 
+      }
+
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        activitiesTableBody.innerHTML = ''; 
+        
+        data.sections.forEach(section => {
+          addNewSectionToDOM(section.name);
+          
+          section.activities.forEach(activity => {
+            const statusInfo = getStatusInfo(activity.status, activity.progress);
+            const activityRow = document.createElement('tr');
+            activityRow.className = 'fade-in'; 
+            activityRow.innerHTML = `
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.id}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.name}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.responsible}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.team}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.predecessor}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="${activity.startDate || ''}" class="activity-date-start w-full" placeholder="TBD"></td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="${activity.endDate || ''}" class="activity-date-end w-full" placeholder="TBD"></td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.duration || calculateDuration(activity.startDate, activity.endDate)}</td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full ${statusInfo.cssClass}">${statusInfo.text}</span>
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="${activity.realEnd || ''}" class="activity-date-real-end w-full"></td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="${statusInfo.progressClass} h-2 rounded-full" style="width: ${activity.progress || 0}%"></div>
+                </div>
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1">${activity.notes || ''}</textarea>
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+                <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
+            `;
+            activitiesTableBody.appendChild(activityRow);
+          });
+        });
+      }
+      updateSummary();
+    }
+    
+    function updateSummary() {
+        let total = 0;
+        let completed = 0;
+        const activityRows = activitiesTableBody.querySelectorAll('tr:not(.bg-gray-100)'); 
+
+        activityRows.forEach(row => {
+            total++;
+            const statusText = row.cells[8].querySelector('span').textContent.toLowerCase();
+            // const progressWidth = row.cells[10].querySelector('div div').style.width;
+            if (statusText === 'concluído' /*|| progressWidth === '100%'*/) { // Rely on status text primarily
+                completed++;
+            }
+        });
+
+        const pending = total - completed;
+        const overallProgress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+        const geralProgressFill = document.getElementById('geralProgressFill');
+        geralProgressFill.style.width = `${overallProgress}%`;
+        geralProgressFill.textContent = `${overallProgress}%`; 
+        document.getElementById('geralProgressText').textContent = `${overallProgress}% concluído`;
+        document.getElementById('totalActivities').textContent = `${total} atividade${total !== 1 ? 's' : ''}`;
+        document.getElementById('completedActivities').textContent = completed;
+        document.getElementById('pendingActivities').textContent = pending;
+    }
+
+
+    function salvarAlteracoes() {
+      // Before saving, ensure all IDs are correct if they were manually edited or if rows were reordered (not implemented).
+      // For now, just save.
+      saveToLocalStorage();
+      alert('Alterações salvas com sucesso!');
+    }
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      // Basic CSV Export
+      let csvContent = "data:text/csv;charset=utf-8,";
+      const headers = Array.from(document.querySelectorAll("thead th"))
+                           .map(th => th.textContent.trim())
+                           .filter(text => text !== "Ações") // Exclude Actions column
+                           .join(",");
+      csvContent += headers + "\r\n";
+
+      const rows = activitiesTableBody.querySelectorAll('tr');
+      rows.forEach(row => {
+          if (row.classList.contains('bg-gray-100')) { // Section header
+              csvContent += `"${row.querySelector('td span').textContent}",,,,,,,,,,,,\r\n`; // Section name spans multiple cells for visual clarity in CSV
+          } else {
+              const cells = Array.from(row.querySelectorAll('td'));
+              const rowData = cells.slice(0, -1) // Exclude last cell (Actions)
+                                  .map((cell, index) => {
+                                      if (index === 5 || index === 6 || index === 9) { // Date columns
+                                          return `"${cell.querySelector('input[type="date"]').value || 'TBD'}"`;
+                                      } else if (index === 8) { // Status/Farol
+                                          return `"${cell.querySelector('span').textContent.trim()}"`;
+                                      } else if (index === 10) { // % Concluído
+                                          return `"${cell.querySelector('div div').style.width.replace('%','')}"`;
+                                      } else if (index === 11) { // Obs
+                                          return `"${cell.querySelector('textarea').value.replace(/"/g, '""')}"`; // Escape double quotes
+                                      }
+                                      return `"${cell.textContent.trim()}"`;
+                                  }).join(",");
+              csvContent += rowData + "\r\n";
+          }
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "controle_atividades_coronel_otavio_silva.csv");
+      document.body.appendChild(link); 
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    document.getElementById('printBtn').addEventListener('click', () => {
+      window.print();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFromLocalStorage();
+      
+      activitiesTableBody.addEventListener('input', (e) => {
+        if (e.target.tagName === 'TEXTAREA') {
+          saveToLocalStorage(); // Auto-save on textarea input
+        }
+      });
+
+      activitiesTableBody.addEventListener('change', (e) => {
+        const target = e.target;
+        const row = target.closest('tr');
+        if (!row) return;
+
+        if (target.matches('input[type="date"].activity-date-start') || target.matches('input[type="date"].activity-date-end')) {
+            const startDateInput = row.querySelector('.activity-date-start');
+            const endDateInput = row.querySelector('.activity-date-end');
+            const durationCell = row.cells[7]; 
+
+            if (startDateInput && endDateInput && durationCell) {
+                const newDuration = calculateDuration(startDateInput.value, endDateInput.value);
+                durationCell.textContent = newDuration;
+            }
+        }
+        // Any change in a row might affect status or progress, or just needs saving
+        // For simplicity, save on any relevant change.
+        // More specific updates to status/progress can be added here.
+        // For example, if Fim Real is set, and it's past Fim, status might become "Atrasado" or "Concluído com Atraso"
+        saveToLocalStorage(); 
+        updateSummary(); // Recalculate summary after changes
+      });
+    });
+  </script>
+</body>
+</html>

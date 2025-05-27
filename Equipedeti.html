@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório do Time de TI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jsPDF and autoTable for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .completed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .pending { /* This was for date status, let's make one for activity status for consistency */
+            background-color: #fef3c7; /* Using yellow for general pending/TBD */
+            color: #92400e;
+        }
+        .in-progress { /* Added for clarity */
+            background-color: #dbeafe; /* Light blue */
+            color: #1e40af; /* Dark blue */
+        }
+        .not-applicable {
+            background-color: #e5e7eb;
+            color: #4b5563;
+        }
+        .to-be-defined { /* This is for dates, good */
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+                margin: 0;
+                background: white;
+            }
+            .container {
+                width: 100%;
+                max-width: 100%;
+                padding: 0;
+            }
+            table {
+                width: 100%;
+                font-size: 12px;
+            }
+            .break-before {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header with back button -->
+        <header class="mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button onclick="history.back()" class="no-print bg-blue-200 hover:bg-blue-300 text-blue-800 font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i> Voltar
+                    </button>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">Relatório do Time de TI</h1>
+                        <p class="text-gray-600">Atividades e prazos do TI (Time de TI)</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="bg-white p-3 rounded-lg shadow-sm">
+                        <div class="text-sm text-gray-500">Data atual</div>
+                        <div class="font-semibold" id="current-date"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-lg shadow-sm fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500">Total de Atividades</p>
+                        <h3 class="text-2xl font-bold" id="total-activities">0</h3>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-tasks text-blue-600"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500">Datas Definidas</p>
+                        <h3 class="text-2xl font-bold" id="defined-dates">0</h3>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <i class="fas fa-calendar-check text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500">Datas Pendentes</p>
+                        <h3 class="text-2xl font-bold" id="pending-dates">0</h3>
+                    </div>
+                    <div class="bg-yellow-100 p-3 rounded-full">
+                        <i class="fas fa-calendar-times text-yellow-600"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500">Não Aplicável / Sem Data</p>
+                        <h3 class="text-2xl font-bold" id="na-dates">0</h3>
+                    </div>
+                    <div class="bg-gray-100 p-3 rounded-full">
+                        <i class="fas fa-ban text-gray-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="bg-white p-6 rounded-lg shadow-sm mb-8 fade-in">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Distribuição de Status das Datas</h2>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded-full">TI</button>
+                    <!-- <button class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">Todos</button> -->
+                </div>
+            </div>
+            <div class="h-64">
+                <canvas id="datesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Projects Table -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-8 fade-in">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-gray-800">Atividades do Time de TI</h2>
+                    <div class="relative">
+                        <input type="text" id="search-input" placeholder="Buscar projeto..." class="pl-8 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto scrollbar-hide">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Projetos</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Atividade</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsável</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Início</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Fim</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="projects-table">
+                        <!-- Data will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                <div class="text-sm text-gray-500">
+                    Mostrando <span id="showing-from">1</span> a <span id="showing-to">10</span> de <span id="total-items">0</span> resultados
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 border rounded-md text-sm disabled:opacity-50" id="prev-btn" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="px-3 py-1 border rounded-md text-sm disabled:opacity-50" id="next-btn" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end space-x-4 mb-8 no-print">
+            <button id="saveBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200 flex items-center">
+                <i class="fas fa-save mr-2"></i> Salvar Alterações
+            </button>
+            <button id="printBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200 flex items-center">
+                <i class="fas fa-print mr-2"></i> Imprimir
+            </button>
+            <button id="generatePdfBtn" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200 flex items-center">
+                <i class="fas fa-file-pdf mr-2"></i> Gerar PDF
+            </button>
+        </div>
+
+        <!-- Upcoming Deadlines -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow-sm fade-in">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Próximos Prazos</h2>
+                <div class="space-y-4" id="upcoming-deadlines">
+                    <!-- Data will be inserted here by JavaScript -->
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm fade-in">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Atividades Pendentes</h2>
+                <div class="space-y-4" id="pending-activities">
+                    <!-- Data will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set current date
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = now.toLocaleDateString('pt-BR', options);
+
+        // IT team data
+        const itTeamData = [
+            { project: "HANGAR", activity: "Não Tem", responsible: "Não Tem", team: "T.I", startDate: "N/A", endDate: "N/A" },
+            { project: "CIVIL TRADE", activity: "Não Tem", responsible: "Não Tem", team: "T.I", startDate: "N/A", endDate: "N/A" },
+            { project: "HOSP PORTUGUÊS", activity: "Ativação da Rede de Dados", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "16/06/2025", endDate: "27/06/2025" },
+            { project: "HOSP PORTUGUÊS", activity: "Instalação dos equipamentos OCR´s", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "16/06/2025", endDate: "27/06/2025" },
+            { project: "HOSP PORTUGUÊS", activity: "Teste e confirmação de liberação via OCR", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "16/06/2025", endDate: "27/06/2025" },
+            { project: "HOSP ALIANÇA", activity: "Ativação dos terminais", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "03/06/2025", endDate: "05/06/2025" },
+            { project: "HOSP ALIANÇA", activity: "Ativação e configuração da EPA", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "HOSP ALIANÇA", activity: "Ativação dos equipamentos no balcão", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "LIZ EMPRESARIAL", activity: "Instalação dos terminais de entrada e saída", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "LIZ EMPRESARIAL", activity: "Ativação e configuração de terminais", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "LIZ EMPRESARIAL", activity: "Instalação dos equipamentos OCR´s", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "LIZ EMPRESARIAL", activity: "Teste e confirmação de liberação via OCR", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "CCAM", activity: "Ativação de CGC, Caixa e EPA", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "N/A", endDate: "N/A" },
+            { project: "CCAM", activity: "Fixação dos postes de câmeras", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "N/A", endDate: "N/A" },
+            { project: "CCAM", activity: "Ativação dos pontos de câmeras", responsible: "Mauricio \\ Leo", team: "T.I", startDate: "N/A", endDate: "N/A" },
+            { project: "SHOP CIDADE VERDE", activity: "Instalação da OCR´s", responsible: "Mauricio \\ Eronildo", team: "T.I", startDate: "24/05/2025", endDate: "27/05/2025" },
+            { project: "PEDRO CAVALCANTI", activity: "Ativação dos pontos de OCR", responsible: "Mauricio \\ Eronildo", team: "T.I", startDate: "N/A", endDate: "N/A" }, // "Não Tem" for dates mapped to N/A
+            { project: "UNIMED NATAL", activity: "Verificação de infraestrutura para os terminais de entrada, saída e EPA", responsible: "Mauricio \\ Eronildo", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "UNIMED NATAL", activity: "Instalação dos terminais de entrada e saída", responsible: "Mauricio \\ Eronildo", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "UNIMED NATAL", activity: "Fixação dos postes de câmeras", responsible: "Mauricio \\ Eronildo", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "UNIMED NATAL", activity: "Ativação dos pontos de câmeras", responsible: "Mauricio \\ Eronildo", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "FUJISAN", activity: "Ativação das Cancelas", responsible: "Mauricio \\ Antônio", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "FUJISAN", activity: "Ativação dos pontos de câmeras", responsible: "Mauricio \\ Antônio", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "MAXIMINIANO", activity: "Ativação das Cancelas", responsible: "Mauricio \\ Antônio", team: "T.I", startDate: "TBD", endDate: "TBD" }, // From image, this row had Atividade "Ativação das Cancelas"
+            { project: "MAXIMINIANO", activity: "Ativação dos pontos de câmeras", responsible: "Mauricio \\ Antônio", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "AERO SÃO LUIS", activity: "Realocação dos terminais: Ativação dos terminais", responsible: "Mauricio \\ Eronildo", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "AERO SÃO LUIS", activity: "Instalação de OCR: Configuração e ativação dos OCR's", responsible: "Mauricio \\ Eronildo", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "BS DESIGN", activity: "Configuração de ativação de entrada e saida + CFTV + OCR", responsible: "Mauricio \\ Antônio", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "BS DESIGN", activity: "Configuração e ativação de acesso de saída Torres Câmera + CFTV +", responsible: "Mauricio \\ Antônio", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "BS DESIGN", activity: "Instalação de OCR na rampa de saída S3 para S2", responsible: "Mauricio \\ Antônio", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "BS DESIGN", activity: "Configuração e ativação de OCR de saída", responsible: "Mauricio \\ Antônio", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "MASTER CENTER", activity: "Não Tem", responsible: "Não Tem", team: "T.I", startDate: "N/A", endDate: "N/A" }, // "Não Tem" for dates mapped to N/A
+            { project: "APODI", activity: "Ativação das Cancelas", responsible: "Mauricio \\ Antônio", team: "T.I", startDate: "16/06/2025", endDate: "18/06/2025" },
+            { project: "APODI", activity: "Ativação dos pontos de câmeras", responsible: "Mauricio \\ Eronildo", team: "T.I", startDate: "16/06/2025", endDate: "18/06/2025" },
+            { project: "TERR CORONEL OTAVIO SILVA", activity: "Verificação e ativação das cancelas", responsible: "Mauricio \\ Antônio", team: "T.I", startDate: "TBD", endDate: "TBD" },
+            { project: "TERR CORONEL OTAVIO SILVA", activity: "Ativação dos pontos de câmeras", responsible: "Mauricio \\ Antônio", team: "T.I", startDate: "TBD", endDate: "TBD" }
+        ];
+
+
+        let filteredItData = itTeamData.filter(item => item.team === "T.I");
+        let currentDisplayData = [...filteredItData]; // Use a copy for current display that can be filtered
+
+        // Calculate stats based on currentDisplayData
+        function updateStats(data) {
+            const total = data.length;
+            const defined = data.filter(item => item.startDate !== "TBD" && item.startDate !== "N/A" && item.endDate !== "TBD" && item.endDate !== "N/A").length;
+            const pending = data.filter(item => item.startDate === "TBD" || item.endDate === "TBD").length;
+            const na = data.filter(item => item.startDate === "N/A" || item.endDate === "N/A").length;
+
+            document.getElementById('total-activities').textContent = total;
+            document.getElementById('defined-dates').textContent = defined;
+            document.getElementById('pending-dates').textContent = pending;
+            document.getElementById('na-dates').textContent = na;
+
+            // Update chart data
+            datesChart.data.datasets[0].data = [defined, pending, na];
+            datesChart.update();
+        }
+
+
+        // Initialize chart
+        const ctx = document.getElementById('datesChart').getContext('2d');
+        const datesChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Datas Definidas', 'Datas Pendentes', 'Não Aplicável / Sem Data'],
+                datasets: [{
+                    data: [0,0,0], // Initialized by updateStats
+                    backgroundColor: [
+                        '#10B981', // green-500
+                        '#F59E0B', // yellow-500
+                        '#6B7280'  // gray-500
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    // duration: 0 
+                },
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Function to format date (dd/MM/yyyy for display)
+        function formatDate(dateStr) {
+            if (dateStr === "TBD") return "A definir";
+            if (dateStr === "N/A") return "Não aplicável / Sem data";
+            
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                return dateStr;
+            }
+            return dateStr; 
+        }
+        
+        function parseDate(dateStr) {
+            if (dateStr === "TBD" || dateStr === "N/A") return null;
+            const [day, month, year] = dateStr.split('/');
+            return new Date(year, month - 1, day); 
+        }
+
+        function getStatus(startDateStr, endDateStr) {
+            if (startDateStr === "N/A" || endDateStr === "N/A") return "not-applicable";
+            if (startDateStr === "TBD" || endDateStr === "TBD") return "to-be-defined";
+            
+            const today = new Date();
+            today.setHours(0,0,0,0); 
+
+            const start = parseDate(startDateStr);
+            const end = parseDate(endDateStr);
+            
+            if (!start || !end) return "to-be-defined";
+
+            if (today > end) return "completed";
+            if (today >= start && today <= end) return "in-progress";
+            if (today < start) return "pending"; 
+            
+            return "pending"; 
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case "completed": return "Concluído";
+                case "in-progress": return "Em andamento";
+                case "pending": return "Pendente";
+                case "to-be-defined": return "A definir";
+                case "not-applicable": return "Não aplicável / Sem data";
+                default: return "Desconhecido";
+            }
+        }
+        
+        const projectsTable = document.getElementById('projects-table');
+        const itemsPerPage = 10;
+        let currentPage = 1;
+
+        function renderTable(dataToRender, page) {
+            projectsTable.innerHTML = '';
+            const totalItems = dataToRender.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            currentPage = Math.min(page, totalPages) || 1; 
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            
+            for (let i = startIndex; i < endIndex; i++) {
+                const item = dataToRender[i];
+                const statusClass = getStatus(item.startDate, item.endDate);
+                const statusText = getStatusText(statusClass);
+                
+                const row = document.createElement('tr');
+                row.className = i % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.project}</td>
+                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-500" style="min-width: 250px;">${item.activity}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.responsible}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.startDate)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.endDate)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </td>
+                `;
+                projectsTable.appendChild(row);
+            }
+            
+            document.getElementById('showing-from').textContent = totalItems > 0 ? startIndex + 1 : 0;
+            document.getElementById('showing-to').textContent = endIndex;
+            document.getElementById('total-items').textContent = totalItems;
+            
+            document.getElementById('prev-btn').disabled = currentPage === 1;
+            document.getElementById('next-btn').disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable(currentDisplayData, currentPage);
+            }
+        });
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            const totalPages = Math.ceil(currentDisplayData.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable(currentDisplayData, currentPage);
+            }
+        });
+        
+        const searchInput = document.getElementById('search-input');
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            currentDisplayData = filteredItData.filter(item => 
+                item.project.toLowerCase().includes(searchTerm) ||
+                item.activity.toLowerCase().includes(searchTerm) ||
+                item.responsible.toLowerCase().includes(searchTerm)
+            );
+            renderTable(currentDisplayData, 1); 
+            updateStats(currentDisplayData); 
+            renderUpcomingDeadlines(currentDisplayData); 
+            renderPendingActivities(currentDisplayData); 
+        });
+
+
+        function getUpcomingDeadlines(data) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); 
+            const thirtyDaysLater = new Date();
+            thirtyDaysLater.setDate(today.getDate() + 30);
+            
+            return data.filter(item => {
+                if (item.endDate === "TBD" || item.endDate === "N/A") return false;
+                const endDate = parseDate(item.endDate);
+                return endDate && endDate >= today && endDate <= thirtyDaysLater;
+            }).sort((a, b) => parseDate(a.endDate) - parseDate(b.endDate)).slice(0, 5);
+        }
+
+        const upcomingDeadlinesContainer = document.getElementById('upcoming-deadlines');
+        function renderUpcomingDeadlines(data) {
+            const deadlines = getUpcomingDeadlines(data);
+            upcomingDeadlinesContainer.innerHTML = '';
+            if (deadlines.length > 0) {
+                deadlines.forEach(item => {
+                    const deadlineItem = document.createElement('div');
+                    deadlineItem.className = 'flex items-start';
+                    deadlineItem.innerHTML = `
+                        <div class="flex-shrink-0 mt-1">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <i class="fas fa-calendar-day text-blue-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-gray-900">${item.project}</h3>
+                            <p class="text-sm text-gray-500">${item.activity}</p>
+                            <div class="mt-1 text-sm text-gray-500">
+                                <span class="font-medium">Prazo:</span> ${formatDate(item.endDate)}
+                            </div>
+                        </div>
+                    `;
+                    upcomingDeadlinesContainer.appendChild(deadlineItem);
+                });
+            } else {
+                upcomingDeadlinesContainer.innerHTML = `<div class="text-center py-4 text-gray-500">Nenhum prazo próximo nos próximos 30 dias</div>`;
+            }
+        }
+        
+        function getPendingActivitiesList(data) {
+            return data.filter(item => item.startDate === "TBD" || item.endDate === "TBD").slice(0, 5);
+        }
+
+        const pendingActivitiesContainer = document.getElementById('pending-activities');
+        function renderPendingActivities(data) {
+            const pending = getPendingActivitiesList(data);
+            pendingActivitiesContainer.innerHTML = '';
+            if (pending.length > 0) {
+                pending.forEach(item => {
+                    const pendingItem = document.createElement('div');
+                    pendingItem.className = 'flex items-start';
+                    pendingItem.innerHTML = `
+                        <div class="flex-shrink-0 mt-1">
+                            <div class="bg-yellow-100 p-2 rounded-full">
+                                <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-gray-900">${item.project}</h3>
+                            <p class="text-sm text-gray-500">${item.activity}</p>
+                            <div class="mt-1 text-sm text-gray-500">
+                                <span class="font-medium">Status:</span> Datas a definir
+                            </div>
+                        </div>
+                    `;
+                    pendingActivitiesContainer.appendChild(pendingItem);
+                });
+            } else {
+                pendingActivitiesContainer.innerHTML = `<div class="text-center py-4 text-gray-500">Nenhuma atividade pendente de definição de datas</div>`;
+            }
+        }
+        
+        // Initial renders
+        updateStats(currentDisplayData);
+        renderTable(currentDisplayData, currentPage);
+        renderUpcomingDeadlines(currentDisplayData);
+        renderPendingActivities(currentDisplayData);
+
+
+        function saveData() {
+            alert('Dados salvos com sucesso! (Simulação)');
+            console.log('Dados para salvar:', filteredItData); 
+        }
+
+        function generatePdf() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'l', // landscape for potentially wide activity names
+                unit: 'mm', 
+                format: 'a4' 
+            });
+
+            let yPos = 15; 
+            const pageMargin = 15;
+            const pageWidth = doc.internal.pageSize.getWidth(); // Landscape width
+            // const contentWidth = pageWidth - (2 * pageMargin); // Not directly used for text placement
+
+            // Title
+            doc.setFontSize(18);
+            doc.text("Relatório do Time de TI", pageWidth / 2, yPos, { align: 'center' });
+            yPos += 8;
+            doc.setFontSize(10);
+            doc.text(`Data: ${now.toLocaleDateString('pt-BR', options)}`, pageWidth / 2, yPos, { align: 'center' });
+            yPos += 12;
+
+            // Stats Cards (using data from current view - currentDisplayData)
+            const currentTotal = document.getElementById('total-activities').textContent;
+            const currentDefined = document.getElementById('defined-dates').textContent;
+            const currentPending = document.getElementById('pending-dates').textContent;
+            const currentNA = document.getElementById('na-dates').textContent;
+
+            doc.setFontSize(12);
+            doc.text("Resumo das Atividades:", pageMargin, yPos);
+            yPos += 6;
+            doc.setFontSize(10);
+            doc.text(`- Total de Atividades: ${currentTotal}`, pageMargin + 5, yPos); yPos += 6;
+            doc.text(`- Datas Definidas: ${currentDefined}`, pageMargin + 5, yPos); yPos += 6;
+            doc.text(`- Datas Pendentes: ${currentPending}`, pageMargin + 5, yPos); yPos += 6;
+            doc.text(`- Não Aplicável / Sem Data: ${currentNA}`, pageMargin + 5, yPos);
+            
+            // Chart (Place it to the right of stats)
+            let chartXPos = pageMargin + 80; // Position chart to the right
+            let chartYPos = yPos - 24; // Align with top of stats
+            
+            try {
+                const originalAnimation = datesChart.options.animation;
+                datesChart.options.animation = false; 
+                datesChart.update('none'); 
+
+                const chartImage = datesChart.toBase64Image(); 
+                
+                datesChart.options.animation = originalAnimation;
+                datesChart.update(); 
+
+                // doc.setFontSize(12); // Title already above chart
+                // doc.text("Distribuição de Status das Datas:", chartXPos, chartYPos - 5); // No need for separate title if integrated
+                
+                const imgProps = doc.getImageProperties(chartImage);
+                const chartWidth = 70; // mm
+                const chartHeight = (imgProps.height * chartWidth) / imgProps.width;
+                
+                if (chartXPos + chartWidth > pageWidth - pageMargin) { // Check if chart fits
+                    chartXPos = pageWidth - pageMargin - chartWidth; // Adjust if too wide
+                }
+                doc.addImage(chartImage, 'PNG', chartXPos, chartYPos, chartWidth, chartHeight);
+                
+                yPos = Math.max(yPos, chartYPos + chartHeight) +10; // Ensure yPos is below both stats and chart
+
+            } catch (e) {
+                console.error("Erro ao adicionar gráfico ao PDF:", e);
+                yPos +=10; // Add space even if error
+            }
+            
+            if (yPos > doc.internal.pageSize.getHeight() - pageMargin - 30) { // Check space for table title
+                 doc.addPage(); yPos = pageMargin;
+            }
+
+            // Projects Table (using currentDisplayData which reflects current search/filters)
+            doc.setFontSize(12);
+            doc.text("Atividades do Time de TI", pageMargin, yPos);
+            yPos += 2;
+
+            const tableColumn = ["Projeto", "Atividade", "Responsável", "Início", "Fim", "Status"];
+            const tableRows = [];
+
+            currentDisplayData.forEach(item => { 
+                const statusClass = getStatus(item.startDate, item.endDate);
+                const rowData = [
+                    item.project,
+                    item.activity,
+                    item.responsible,
+                    formatDate(item.startDate),
+                    formatDate(item.endDate),
+                    getStatusText(statusClass)
+                ];
+                tableRows.push(rowData);
+            });
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: yPos + 5,
+                theme: 'striped',
+                styles: { fontSize: 7, cellPadding: 1.5, halign: 'left', overflow: 'linebreak' },
+                headStyles: { fillColor: [30, 136, 229], textColor: 255, fontSize: 7.5, fontStyle: 'bold', halign: 'center' }, // Blue for IT
+                columnStyles: {
+                    0: { cellWidth: 40 }, // Projeto
+                    1: { cellWidth: 'auto' }, // Atividade - let it take remaining space
+                    2: { cellWidth: 35 }, // Responsável
+                    3: { cellWidth: 20, halign: 'center' }, // Início
+                    4: { cellWidth: 20, halign: 'center' }, // Fim
+                    5: { cellWidth: 25, halign: 'center' }  // Status
+                },
+                margin: { left: pageMargin, right: pageMargin },
+                didDrawPage: function (data) {
+                    doc.setFontSize(8);
+                    doc.text('Página ' + doc.internal.getNumberOfPages(), data.settings.margin.left, doc.internal.pageSize.height - 7);
+                }
+            });
+            
+            yPos = doc.lastAutoTable.finalY + 10;
+
+            // Upcoming Deadlines & Pending Activities (Summaries from current view)
+            const deadlinesForPdf = getUpcomingDeadlines(currentDisplayData);
+            const pendingForPdf = getPendingActivitiesList(currentDisplayData);
+
+            // Place these side-by-side if they fit, otherwise one below the other.
+            let summaryStartY = yPos;
+            const halfContentWidth = (pageWidth - 2 * pageMargin - 5) / 2; // 5mm for gutter
+
+            if (deadlinesForPdf.length > 0) {
+                if (summaryStartY + 20 > doc.internal.pageSize.getHeight() - pageMargin) {
+                    doc.addPage(); summaryStartY = pageMargin;
+                    doc.setFontSize(8); doc.text('Página ' + doc.internal.getNumberOfPages(), pageMargin, doc.internal.pageSize.height - 7);
+                }
+                doc.setFontSize(10); // Slightly smaller for these summaries
+                doc.text("Próximos Prazos (Resumo):", pageMargin, summaryStartY);
+                const upcomingCols = ["Projeto", "Atividade", "Prazo"];
+                const upcomingRows = deadlinesForPdf.slice(0,5).map(i => [i.project, i.activity, formatDate(i.endDate)]);
+                doc.autoTable({ 
+                    head: [upcomingCols], 
+                    body: upcomingRows, 
+                    startY: summaryStartY + 7, 
+                    theme: 'grid', 
+                    styles: { fontSize: 6, cellPadding: 1, overflow: 'ellipsize' }, 
+                    headStyles: {fillColor: [74, 144, 226], fontSize: 6.5}, 
+                    margin: { left: pageMargin, right: pageMargin + halfContentWidth + 5 }, // Confine to left half
+                    tableWidth: halfContentWidth
+                });
+                summaryStartY = Math.max(summaryStartY, doc.lastAutoTable.finalY); // Track max Y for this column
+            }
+
+            if (pendingForPdf.length > 0) {
+                let pendingX = pageMargin + halfContentWidth + 5;
+                let pendingY = yPos; // Start at the same Y as deadlines for side-by-side
+                
+                // If deadlines were not printed or this table is too long, reset Y or add page
+                if (deadlinesForPdf.length === 0) { // if no deadlines printed, use original yPos
+                     pendingY = yPos;
+                } else if (doc.lastAutoTable.finalY > doc.internal.pageSize.getHeight() - pageMargin - 30 && deadlinesForPdf.length > 0) {
+                    // If deadlines table was long and pushed content, but pending still needs to print below it
+                    // This case is complex, for simplicity, we'll just start it after. If they need strict side-by-side, logic needs more finesse.
+                    // Or, if deadlines were short, pending starts at same yPos but on right.
+                    // The current check is more about if *this* table needs a new page.
+                }
+
+
+                if (pendingY + 20 > doc.internal.pageSize.getHeight() - pageMargin) {
+                    doc.addPage(); pendingY = pageMargin; pendingX = pageMargin; // If new page, start left
+                    doc.setFontSize(8); doc.text('Página ' + doc.internal.getNumberOfPages(), pageMargin, doc.internal.pageSize.height - 7);
+                } else if (deadlinesForPdf.length === 0) { // If no deadlines, pending takes full width or starts left
+                    pendingX = pageMargin;
+                }
+
+
+                doc.setFontSize(10);
+                doc.text("Atividades Pendentes (Resumo):", pendingX, pendingY);
+                const pendingCols = ["Projeto", "Atividade", "Status"];
+                const pendingRows = pendingForPdf.slice(0,5).map(i => [i.project, i.activity, "Datas a definir"]);
+                 doc.autoTable({ 
+                    head: [pendingCols], 
+                    body: pendingRows, 
+                    startY: pendingY + 7, 
+                    theme: 'grid', 
+                    styles: { fontSize: 6, cellPadding: 1, overflow: 'ellipsize' }, 
+                    headStyles: {fillColor: [245, 166, 35], fontSize: 6.5}, 
+                    margin: { left: pendingX, right: pageMargin }, // Confine to right half or full if it's alone
+                    tableWidth: (deadlinesForPdf.length > 0 && pendingX > pageMargin) ? halfContentWidth : (pageWidth - 2 * pageMargin) // Adjust width
+                });
+            }
+
+
+            doc.save('relatorio_TI.pdf');
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        document.getElementById('saveBtn').addEventListener('click', saveData);
+        document.getElementById('generatePdfBtn').addEventListener('click', generatePdf);
+        document.getElementById('printBtn').addEventListener('click', printReport);
+    </script>
+</body>
+</html>

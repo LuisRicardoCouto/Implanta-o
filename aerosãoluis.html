@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Atividades - Aero São Luis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .section-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .progress-bar {
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: white;
+    }
+    textarea {
+      resize: none;
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Styling for date inputs in table */
+    td input[type="date"] {
+        min-width: 120px; /* Ensure enough space for date picker icon */
+        padding: 0.25rem 0.5rem;
+        border: 1px solid #e2e8f0; /* Tailwind gray-300 */
+        border-radius: 0.25rem;
+        font-size: 0.875rem; /* text-sm */
+        box-sizing: border-box;
+    }
+    td input[type="date"]:focus {
+        outline: none;
+        border-color: #3b82f6; /* Tailwind blue-500 */
+        box-shadow: 0 0 0 1px #3b82f6;
+    }
+
+    @media print {
+      body {
+        font-size: 10px;
+      }
+      .section-header, .no-print {
+        display: none !important;
+      }
+      table {
+        width: 100% !important;
+        font-size: 9px !important;
+      }
+      td, th {
+        padding: 3px !important;
+      }
+      textarea {
+        border: 1px solid #ccc !important;
+        min-height: 20px !important;
+        background-color: #fff !important;
+        color: #000 !important;
+      }
+      td input[type="date"] { /* Print style for date inputs */
+        border: none !important;
+        padding: 1px !important;
+        background-color: transparent !important;
+        color: #000 !important;
+        width: auto !important; /* Let content decide width */
+      }
+      .progress-bar {
+        background-color: #e5e7eb !important;
+        border: 1px solid #ccc;
+      }
+      .progress-fill {
+        background-color: #22c55e !important;
+        color: black !important;
+      }
+      .bg-green-700, .bg-blue-600, .bg-gray-600, .bg-green-600, .bg-gray-100, .bg-gray-50 {
+        background-color: transparent !important;
+        color: #000 !important;
+      }
+      .text-white {
+        color: #000 !important;
+      }
+      .shadow-md, .rounded-lg {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 p-4 md:p-6">
+  <div class="max-w-screen-2xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+    <!-- Header -->
+    <div class="bg-green-700 text-white p-4 flex flex-wrap justify-between items-center no-print">
+      <div>
+        <a href="javascript:history.back()" class="text-white hover:text-gray-200 transition">
+          <i class="fas fa-arrow-left mr-2"></i> Voltar
+        </a>
+        <h1 class="text-xl md:text-2xl font-bold mt-2">CONTROLE DE ATIVIDADES DO PROJETO AERO SÃO LUIS</h1>
+      </div>
+      <div class="flex items-center space-x-2 mt-2 md:mt-0">
+        <button id="addSectionBtn" class="bg-green-600 hover:bg-green-800 text-white px-3 py-1 rounded-md text-sm flex items-center transition">
+          <i class="fas fa-plus mr-1"></i> Seção
+        </button>
+        <button id="addActivityBtn" class="bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm flex items-center transition">
+          <i class="fas fa-plus mr-1"></i> Atividade
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress Summary -->
+    <div class="bg-gray-100 p-3 border-b no-print">
+      <div class="flex flex-wrap items-center justify-between">
+        <div class="w-full md:w-auto mb-2 md:mb-0">
+          <h3 class="font-semibold text-gray-700">Progresso Geral</h3>
+          <div class="progress-bar bg-gray-300 w-full md:w-64 mt-1">
+            <div id="geralProgressFill" class="progress-fill bg-green-500" style="width: 0%"></div>
+          </div>
+          <span id="geralProgressText" class="text-sm text-gray-600">0% concluído</span>
+        </div>
+        <div class="flex space-x-4 text-sm">
+          <div>
+            <span class="font-medium">Total: </span>
+            <span id="totalActivities" class="text-gray-700">0 atividades</span>
+          </div>
+          <div>
+            <span class="font-medium">Concluídas: </span>
+            <span id="completedActivities" class="text-green-600">0</span>
+          </div>
+          <div>
+            <span class="font-medium">Pendentes: </span>
+            <span id="pendingActivities" class="text-red-600">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activities Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50 section-header">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">ID</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Atividades</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Responsável</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Equipe</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Predecessor</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Início</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Fim</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Duração</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Status</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Fim Real</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">%</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">Obs.</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20 no-print">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="activitiesTable" class="bg-white divide-y divide-gray-200">
+          <!-- Section 1: Troca de Refletores -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Troca de Refletores ✔</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Troca de Refletores holofotes 400w</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison \ Adeildo</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="2025-03-11" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="2025-05-09" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">60</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Concluído</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="2025-05-09" class="activity-date-real-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Section 2: Comunicação Visual: Projeto Completo -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Comunicação Visual: Projeto Completo</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Orçamentação de comunicação visual</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Leandro \ Alan</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="2025-03-11" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="2025-03-11" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1">Dia 30/04/2025 reunião de alinhamento achar outro prestador</textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Aprovação do escopo</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Leandro \ Alan</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.3</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Confecção e instalação de comunicação visual</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Luis</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">I.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Section 3: Revitalização dos acessos -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Revitalização dos acessos ✔</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Realocação dos terminais: Criação da infraestrutura</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Realocação dos terminais: Ativação dos terminais</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Eronildo</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.I</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.3</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Pintura de sinalização horizontal</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.4</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Revitalização de pintura</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.5</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Correção de fluxo com gelo baiano</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.6</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Instalação de OCR: Construção de Infraestrutura mais poste OCR's</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.7</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Instalação de OCR: Configuração e ativação dos OCR's</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Eronildo</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.I</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Section 4: Fluxo de saída: Trevo -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Fluxo de saída: Trevo ✔</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Apagar sinalização horizontal</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Revitalização de Coberturas</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Section 5: Regularização de dois buracos -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Regularização de dois buracos ✔</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Reconstrução de um trecho de rede coletora</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Reconstrução de rede de drenagem</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Section 6: Retrofit das coberturas -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Retrofit das coberturas</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Troca de cabo de Aço</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Tencionamento de coberturas</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Section 7: Pintura de Vagas -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Pintura de Vagas</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Pintura de toda as vagas</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Section 8: Remanejamento do CGC -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Remanejamento do CGC</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Construção de nova guarita</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mudança da rede de dados para novo ponto em guarita</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Eronildo</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.3</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mudança de mobiliario</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.4</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Desmobilisição da area antiga</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Section 9: Instalação de duas EPA's -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Instalação de duas EPA's</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Construção de nova infraestrutura com passagem com cabeamento de dados e elétrica</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Conectorização de cabos e ativação das EPA's</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Eronildo</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Section 10: Melhorias de CFTV -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Melhorias de CFTV</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Operação apontar necessidades / melhorias</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Leandro \ Alan</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">O.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Section 11: Nobreak para automação -->
+          <tr class="bg-gray-100 font-bold">
+            <td colspan="13" class="px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Nobreak para automação</span>
+                <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Ajuste na infraestrutura</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Aquisição de Nobreak</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Rerison</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">I.P</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          <tr class="fade-in">
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.3</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Ativação de Nobreak</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Eronildo</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.I</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-start w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-end w-full"></td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">0</td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pendente</span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="" class="activity-date-real-end w-full" placeholder="Sem Resposta"></td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+              <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+              <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="bg-gray-50 px-4 py-3 flex justify-between border-t no-print">
+      <div>
+        <button onclick="salvarAlteracoes()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center transition">
+          <i class="fas fa-save mr-2"></i> Salvar Alterações
+        </button>
+      </div>
+      <div class="flex space-x-2">
+        <button id="exportBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center transition">
+          <i class="fas fa-file-export mr-2"></i> Exportar
+        </button>
+        <button id="printBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center transition">
+          <i class="fas fa-print mr-2"></i> Imprimir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Section Modal (No changes needed) -->
+  <div id="sectionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden no-print">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold mb-4">Adicionar Nova Seção</h3>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="sectionName">
+          Nome da Seção
+        </label>
+        <input id="sectionName" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+      </div>
+      <div class="flex justify-end space-x-3">
+        <button id="cancelSectionBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition">
+          Cancelar
+        </button>
+        <button id="confirmSectionBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition">
+          Adicionar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Activity Modal (No changes needed here, dates are already inputs) -->
+  <div id="activityModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden no-print">
+    <div class="bg-white rounded-lg p-6 w-full max-w-2xl">
+      <h3 class="text-lg font-bold mb-4">Adicionar Nova Atividade</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityId">
+            ID da Atividade (ex: 3.1)
+          </label>
+          <input id="activityId" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Auto (ou manual)">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityName">
+            Nome da Atividade
+          </label>
+          <input id="activityName" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityResponsible">
+            Responsável
+          </label>
+          <input id="activityResponsible" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityTeam">
+            Equipe
+          </label>
+          <select id="activityTeam" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <option value="T.M">T.M (Terceiros Manutenção)</option>
+            <option value="T.I">T.I (Tecnologia da Informação)</option>
+            <option value="O.P">O.P (Operações)</option>
+            <option value="I.P">I.P (Infra Predial)</option>
+            <option value="ADM">ADM (Administrativo)</option>
+            <option value="">N/A ou Outra</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityPredecessor">
+            Predecessor (ID)
+          </label>
+          <input id="activityPredecessor" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityStart">
+            Data Início
+          </label>
+          <input id="activityStart" type="date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityEnd">
+            Data Fim
+          </label>
+          <input id="activityEnd" type="date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+         <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityStatus">
+            Status
+          </label>
+          <select id="activityStatus" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <option value="Pendente">Pendente</option>
+            <option value="Em Andamento">Em Andamento</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Atrasado">Atrasado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityRealEnd">
+            Data Fim Real
+          </label>
+          <input id="activityRealEnd" type="date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+         <div>
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="activityProgress">
+            % Concluído
+          </label>
+          <input id="activityProgress" type="number" min="0" max="100" value="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="activityNotes">
+          Observações
+        </label>
+        <textarea id="activityNotes" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="2"></textarea>
+      </div>
+      <div class="flex justify-end space-x-3">
+        <button id="cancelActivityBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition">
+          Cancelar
+        </button>
+        <button id="confirmActivityBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition">
+          Adicionar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const LS_KEY = 'projectAeroSaoLuisData'; // Updated LS_KEY
+    const sectionModal = document.getElementById('sectionModal');
+    const activityModal = document.getElementById('activityModal');
+    const addSectionBtn = document.getElementById('addSectionBtn');
+    const addActivityBtn = document.getElementById('addActivityBtn');
+    const cancelSectionBtn = document.getElementById('cancelSectionBtn');
+    const cancelActivityBtn = document.getElementById('cancelActivityBtn');
+    const confirmSectionBtn = document.getElementById('confirmSectionBtn');
+    const confirmActivityBtn = document.getElementById('confirmActivityBtn');
+    const activitiesTableBody = document.getElementById('activitiesTable');
+
+    // formatDateForDisplay is not used for inputs, but kept if needed elsewhere
+    // function formatDateForDisplay(dateString_YYYYMMDD) { ... }
+
+    // formatDateForInput converts dd/mm/yyyy from initial HTML to yyyy-mm-dd for input.value
+    function formatDate_DDMMYYYY_to_YYYYMMDD(dateString_DDMMYYYY) {
+      if (!dateString_DDMMYYYY) return '';
+      const parts = dateString_DDMMYYYY.split('/');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+      return dateString_DDMMYYYY; // Assume already YYYY-MM-DD if not DD/MM/YYYY
+    }
+    
+    function calculateDuration(startDateStr_YYYYMMDD, endDateStr_YYYYMMDD) {
+        if (!startDateStr_YYYYMMDD || !endDateStr_YYYYMMDD) return 0;
+        
+        const start = new Date(startDateStr_YYYYMMDD + "T00:00:00"); // Ensure local timezone
+        const end = new Date(endDateStr_YYYYMMDD + "T00:00:00");   // Ensure local timezone
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return 0;
+        
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+        return diffDays;
+    }
+
+    addSectionBtn.addEventListener('click', () => {
+      document.getElementById('sectionName').value = '';
+      sectionModal.classList.remove('hidden');
+    });
+
+    addActivityBtn.addEventListener('click', () => {
+      document.getElementById('activityId').value = generateNextActivityId();
+      document.getElementById('activityName').value = '';
+      document.getElementById('activityResponsible').value = '';
+      document.getElementById('activityTeam').value = 'T.M';
+      document.getElementById('activityPredecessor').value = '';
+      document.getElementById('activityStart').value = ''; // Input for modal
+      document.getElementById('activityEnd').value = '';   // Input for modal
+      document.getElementById('activityStatus').value = 'Pendente';
+      document.getElementById('activityRealEnd').value = ''; // Input for modal
+      document.getElementById('activityProgress').value = '0';
+      document.getElementById('activityNotes').value = '';
+      activityModal.classList.remove('hidden');
+    });
+
+    cancelSectionBtn.addEventListener('click', () => sectionModal.classList.add('hidden'));
+    cancelActivityBtn.addEventListener('click', () => activityModal.classList.add('hidden'));
+
+    confirmSectionBtn.addEventListener('click', () => {
+      const sectionName = document.getElementById('sectionName').value.trim();
+      if (sectionName) {
+        addNewSectionToDOM(sectionName);
+        sectionModal.classList.add('hidden');
+        saveToLocalStorage();
+        updateSummary();
+      }
+    });
+
+    confirmActivityBtn.addEventListener('click', () => {
+      const activityName = document.getElementById('activityName').value.trim();
+      if (activityName) {
+        addNewActivityToDOM();
+        activityModal.classList.add('hidden');
+        saveToLocalStorage();
+        updateSummary();
+      }
+    });
+
+    function generateNextActivityId() {
+        const sections = activitiesTableBody.querySelectorAll('tr.bg-gray-100');
+        if (sections.length === 0) return "1.1"; 
+        const lastSectionRow = sections[sections.length - 1];
+        let sectionIndex = 0;
+        let currentSection = lastSectionRow;
+        while(currentSection) {
+            if (currentSection.classList.contains('bg-gray-100')) sectionIndex++;
+            currentSection = currentSection.previousElementSibling;
+        }
+        let activityCount = 0;
+        let currentRow = lastSectionRow.nextElementSibling;
+        while (currentRow && !currentRow.classList.contains('bg-gray-100')) {
+            activityCount++;
+            currentRow = currentRow.nextElementSibling;
+        }
+        return `${sectionIndex}.${activityCount + 1}`;
+    }
+
+    function addNewSectionToDOM(name) {
+      const newSection = document.createElement('tr');
+      newSection.className = 'bg-gray-100 font-bold fade-in';
+      newSection.innerHTML = `
+        <td colspan="13" class="px-4 py-2">
+          <div class="flex justify-between items-center">
+            <span>${name}</span>
+            <button class="text-gray-600 hover:text-red-600 transition no-print" onclick="removeSection(this)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </td>
+      `;
+      activitiesTableBody.appendChild(newSection);
+    }
+
+    function addNewActivityToDOM() {
+      const id = document.getElementById('activityId').value || generateNextActivityId();
+      const name = document.getElementById('activityName').value;
+      const responsible = document.getElementById('activityResponsible').value;
+      const team = document.getElementById('activityTeam').value;
+      const predecessor = document.getElementById('activityPredecessor').value;
+      const startDate_YYYYMMDD = document.getElementById('activityStart').value; 
+      const endDate_YYYYMMDD = document.getElementById('activityEnd').value;     
+      const status = document.getElementById('activityStatus').value;
+      const realEnd_YYYYMMDD = document.getElementById('activityRealEnd').value; 
+      const progress = document.getElementById('activityProgress').value;
+      const notes = document.getElementById('activityNotes').value;
+
+      const duration = calculateDuration(startDate_YYYYMMDD, endDate_YYYYMMDD);
+      const statusInfo = getStatusInfo(status, progress);
+      
+      const newActivity = document.createElement('tr');
+      newActivity.className = 'fade-in';
+      newActivity.innerHTML = `
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${id}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${name}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${responsible}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${team}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${predecessor}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="${startDate_YYYYMMDD}" class="activity-date-start w-full"></td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="${endDate_YYYYMMDD}" class="activity-date-end w-full"></td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${duration}</td>
+        <td class="px-4 py-2 whitespace-nowrap">
+          <span class="px-2 py-1 text-xs rounded-full ${statusInfo.cssClass}">${statusInfo.text}</span>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="${realEnd_YYYYMMDD}" class="activity-date-real-end w-full"></td>
+        <td class="px-4 py-2 whitespace-nowrap">
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="${statusInfo.progressClass} h-2 rounded-full" style="width: ${progress}%"></div>
+          </div>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap">
+          <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1">${notes}</textarea>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+          <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </td>
+      `;
+      
+      const sections = activitiesTableBody.querySelectorAll('tr.bg-gray-100');
+      if (sections.length > 0) {
+        const lastSection = sections[sections.length - 1];
+        let insertAfter = lastSection;
+        let current = lastSection.nextElementSibling;
+        while(current && !current.classList.contains('bg-gray-100')) {
+            insertAfter = current;
+            current = current.nextElementSibling;
+        }
+        insertAfter.parentNode.insertBefore(newActivity, insertAfter.nextSibling);
+      } else { 
+        alert("Por favor, adicione uma seção primeiro.");
+      }
+    }
+
+    function removeSection(button) {
+      const sectionRow = button.closest('tr');
+      let nextRow = sectionRow.nextElementSibling;
+      if (!confirm(`Tem certeza que deseja remover a seção "${sectionRow.querySelector('td span').textContent}" e todas as suas atividades?`)) {
+        return;
+      }
+      while (nextRow && !nextRow.classList.contains('bg-gray-100')) {
+        const rowToRemove = nextRow;
+        nextRow = nextRow.nextElementSibling; 
+        rowToRemove.remove();
+      }
+      sectionRow.remove();
+      saveToLocalStorage();
+      updateSummary();
+    }
+
+    function removeActivity(button) {
+      const row = button.closest('tr');
+      if (!confirm(`Tem certeza que deseja remover a atividade "${row.cells[1].textContent}"?`)) {
+        return;
+      }
+      row.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+      setTimeout(() => {
+        row.remove();
+        saveToLocalStorage();
+        updateSummary();
+      }, 300);
+    }
+
+    function getStatusInfo(statusText, progressPercent) {
+        let cssClass = 'bg-yellow-100 text-yellow-800'; 
+        let progressClass = 'bg-yellow-500';
+        let text = statusText || 'Pendente';
+        const progress = parseInt(progressPercent);
+
+        if (statusText) {
+            const lowerStatus = statusText.toLowerCase();
+            if (lowerStatus.includes('concluído')) {
+                cssClass = 'bg-green-100 text-green-800';
+                progressClass = 'bg-green-600';
+            } else if (lowerStatus.includes('atrasado')) {
+                cssClass = 'bg-red-100 text-red-800';
+                progressClass = 'bg-red-500';
+            } else if (lowerStatus.includes('andamento')) {
+                cssClass = 'bg-blue-100 text-blue-800';
+                progressClass = 'bg-blue-500';
+            } else if (lowerStatus.includes('cancelado')) {
+                cssClass = 'bg-gray-200 text-gray-700';
+                progressClass = 'bg-gray-400';
+            }
+        }
+        if (progress === 100 && !text.toLowerCase().includes('cancelado')) {
+            cssClass = 'bg-green-100 text-green-800';
+            progressClass = 'bg-green-600';
+            text = 'Concluído';
+        } else if (progress > 0 && progress < 100 && (text.toLowerCase().includes('pendente') || !statusText)) {
+            cssClass = 'bg-blue-100 text-blue-800';
+            progressClass = 'bg-blue-500';
+            text = 'Em Andamento';
+        }
+        return { text, cssClass, progressClass };
+    }
+
+    function saveToLocalStorage() {
+      const data = { sections: [] };
+      const rows = activitiesTableBody.querySelectorAll('tr');
+      let currentSectionData = null;
+      
+      rows.forEach(row => {
+        if (row.classList.contains('bg-gray-100')) {
+          currentSectionData = {
+            name: row.querySelector('td span').textContent,
+            activities: []
+          };
+          data.sections.push(currentSectionData);
+        } else if (currentSectionData && row.cells.length > 1) { // Ensure it's an activity row
+          const cells = row.querySelectorAll('td');
+          const activity = {
+            id: cells[0].textContent,
+            name: cells[1].textContent,
+            responsible: cells[2].textContent,
+            team: cells[3].textContent,
+            predecessor: cells[4].textContent,
+            startDate: cells[5].querySelector('input[type="date"].activity-date-start').value, 
+            endDate: cells[6].querySelector('input[type="date"].activity-date-end').value,   
+            duration: cells[7].textContent,
+            status: cells[8].querySelector('span').textContent,
+            realEnd: cells[9].querySelector('input[type="date"].activity-date-real-end').value,   
+            progress: cells[10].querySelector('div div').style.width.replace('%',''),
+            notes: cells[11].querySelector('textarea').value
+          };
+          currentSectionData.activities.push(activity);
+        }
+      });
+      localStorage.setItem(LS_KEY, JSON.stringify(data));
+    }
+
+    function loadFromLocalStorage() {
+      const savedData = localStorage.getItem(LS_KEY);
+      const initialHTMLRows = activitiesTableBody.querySelectorAll('tr:not(.bg-gray-100)');
+
+      if (!savedData && initialHTMLRows.length > 0) { 
+         initialHTMLRows.forEach(row => {
+            if (row.cells.length > 7) { // Check if it's a valid activity row
+                const startDateInput = row.cells[5].querySelector('input.activity-date-start');
+                const endDateInput = row.cells[6].querySelector('input.activity-date-end');
+                if (startDateInput && endDateInput) {
+                    // Duration is already hardcoded from image, but this would recalculate if needed
+                    // row.cells[7].textContent = calculateDuration(startDateInput.value, endDateInput.value);
+                }
+            }
+         });
+         updateSummary(); 
+         return; 
+      }
+
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        activitiesTableBody.innerHTML = ''; 
+        
+        data.sections.forEach(section => {
+          addNewSectionToDOM(section.name);
+          
+          section.activities.forEach(activity => {
+            const statusInfo = getStatusInfo(activity.status, activity.progress);
+            const activityRow = document.createElement('tr');
+            activityRow.className = 'fade-in'; 
+            activityRow.innerHTML = `
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.id}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.name}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.responsible}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.team}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.predecessor}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="${activity.startDate || ''}" class="activity-date-start w-full"></td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="${activity.endDate || ''}" class="activity-date-end w-full"></td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">${activity.duration || calculateDuration(activity.startDate, activity.endDate)}</td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full ${statusInfo.cssClass}">${statusInfo.text}</span>
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm"><input type="date" value="${activity.realEnd || ''}" class="activity-date-real-end w-full"></td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="${statusInfo.progressClass} h-2 rounded-full" style="width: ${activity.progress || 0}%"></div>
+                </div>
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1">${activity.notes || ''}</textarea>
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 no-print">
+                <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
+            `;
+            activitiesTableBody.appendChild(activityRow);
+          });
+        });
+      }
+      updateSummary();
+    }
+    
+    function updateSummary() {
+        let total = 0;
+        let completed = 0;
+        const activityRows = activitiesTableBody.querySelectorAll('tr:not(.bg-gray-100)'); 
+
+        activityRows.forEach(row => {
+            if (row.cells.length > 10) { // Ensure it's an activity row with enough cells
+                total++;
+                const statusTextCell = row.cells[8].querySelector('span');
+                const progressDiv = row.cells[10].querySelector('div div');
+
+                if (statusTextCell && progressDiv) {
+                    const statusText = statusTextCell.textContent.toLowerCase();
+                    const progressWidth = progressDiv.style.width;
+                    if (statusText === 'concluído' || progressWidth === '100%') {
+                        completed++;
+                    }
+                }
+            }
+        });
+
+        const pending = total - completed;
+        const overallProgress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+        const geralProgressFill = document.getElementById('geralProgressFill');
+        geralProgressFill.style.width = `${overallProgress}%`;
+        geralProgressFill.textContent = `${overallProgress}%`; 
+        document.getElementById('geralProgressText').textContent = `${overallProgress}% concluído`;
+        document.getElementById('totalActivities').textContent = `${total} atividade${total !== 1 ? 's' : ''}`;
+        document.getElementById('completedActivities').textContent = completed;
+        document.getElementById('pendingActivities').textContent = pending;
+    }
+
+
+    function salvarAlteracoes() {
+      saveToLocalStorage();
+      alert('Alterações salvas com sucesso!');
+    }
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      alert('Funcionalidade de exportação (Ex: para CSV ou Excel) pode ser implementada aqui.');
+    });
+
+    document.getElementById('printBtn').addEventListener('click', () => {
+      window.print();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFromLocalStorage();
+      
+      activitiesTableBody.addEventListener('input', (e) => {
+        if (e.target.tagName === 'TEXTAREA') {
+          saveToLocalStorage(); 
+        }
+      });
+
+      activitiesTableBody.addEventListener('change', (e) => {
+        if (e.target.matches('input[type="date"].activity-date-start') || e.target.matches('input[type="date"].activity-date-end')) {
+            const row = e.target.closest('tr');
+            if (row && row.cells.length > 7) {
+                const startDateInput = row.querySelector('.activity-date-start');
+                const endDateInput = row.querySelector('.activity-date-end');
+                const durationCell = row.cells[7]; 
+
+                if (startDateInput && endDateInput && durationCell) {
+                    const newDuration = calculateDuration(startDateInput.value, endDateInput.value);
+                    durationCell.textContent = newDuration;
+                    saveToLocalStorage(); 
+                }
+            }
+        } else if (e.target.matches('input[type="date"].activity-date-real-end')) {
+            saveToLocalStorage(); 
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Shopping Cidade Verde - Controle de Atividades</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .section-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        textarea {
+            resize: none;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slide-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .slide-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .carousel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .carousel-inner {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        
+        .carousel-item {
+            min-width: 100%;
+            position: relative;
+        }
+        
+        .carousel-item img {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+        }
+        
+        .carousel-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 1rem;
+        }
+        
+        .carousel-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.7);
+            color: #333;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .carousel-control.prev {
+            left: 15px;
+        }
+        
+        .carousel-control.next {
+            right: 15px;
+        }
+        
+        .carousel-indicators {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .carousel-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+        }
+        
+        .carousel-indicator.active {
+            background: white;
+        }
+        
+        .print-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+            background-color: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .print-button:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        @media print {
+            nav, .print-button {
+                display: none !important;
+            }
+            
+            .slide {
+                min-height: auto;
+                page-break-after: always;
+            }
+            
+            body {
+                background-color: white;
+            }
+            
+            .carousel-control, .carousel-indicators {
+                display: none;
+            }
+            
+            .carousel-inner {
+                transform: none !important;
+                display: block;
+            }
+            
+            .carousel-item {
+                display: block !important;
+                opacity: 1 !important;
+                position: static;
+                page-break-inside: avoid;
+            }
+            
+            .carousel-item img {
+                height: auto;
+                max-height: 500px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .carousel-item img {
+                height: 300px;
+            }
+            
+            .slide {
+                padding: 1rem;
+            }
+            
+            .print-button {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+        
+        /* Project header with image */
+        .project-header {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        
+        .project-header-content {
+            position: relative;
+            z-index: 2;
+            background: rgba(22, 101, 52, 0.9);
+            color: white;
+            padding: 1.5rem;
+        }
+        
+        .project-header-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+        
+        /* Tabs navigation */
+        .tabs-container {
+            background: #f3f4f6;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            color: #4b5563;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .tab-button:hover {
+            color: #1f2937;
+            border-bottom-color: #d1d5db;
+        }
+        
+        .tab-button.active {
+            color: #166534;
+            border-bottom-color: #166534;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="https://via.placeholder.com/40x40?text=Logo" alt="Logo" class="h-10 mr-3">
+                <h1 class="text-xl font-bold text-gray-800">Shopping Cidade Verde</h1>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="#dashboard" class="text-gray-700 hover:text-blue-600 font-medium">Dashboard</a>
+                <a href="#presentation" class="text-gray-700 hover:text-blue-600 font-medium">Apresentação</a>
+            </div>
+            <button class="md:hidden text-gray-700">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Project Header with Image -->
+        <div class="project-header rounded-t-lg mb-6">
+            <img src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                 alt="Shopping Cidade Verde" class="project-header-image">
+            <div class="project-header-content">
+                <h1 class="text-3xl font-bold">Projeto Civil Trade</h1>
+                <p class="mt-2">Modernização e automação do estacionamento do Shopping Cidade Verde</p>
+            </div>
+        </div>
+        
+        <!-- Tabs Navigation -->
+        <div class="tabs-container flex overflow-x-auto">
+            <a href="#dashboard" class="tab-button active">
+                <i class="fas fa-tasks mr-2"></i> Controle de Atividades
+            </a>
+            <a href="#presentation" class="tab-button">
+                <i class="fas fa-images mr-2"></i> Apresentação do Projeto
+            </a>
+        </div>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+            <!-- Header -->
+            <div class="bg-green-700 text-white p-4 flex justify-between items-center">
+                <div>
+                    <a href="javascript:history.back()" class="text-white hover:text-gray-200 transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Voltar
+                    </a>
+                    <h1 class="text-xl md:text-2xl font-bold mt-2">CONTROLE DE ATIVIDADES DO PROJETO CIVIL TRADE</h1>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="addSectionBtn" class="bg-green-600 hover:bg-green-800 text-white px-3 py-1 rounded-md text-sm flex items-center transition">
+                        <i class="fas fa-plus mr-1"></i> Seção
+                    </button>
+                    <button id="addActivityBtn" class="bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-md text-sm flex items-center transition">
+                        <i class="fas fa-plus mr-1"></i> Atividade
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Summary -->
+            <div class="bg-gray-100 p-3 border-b">
+                <div class="flex flex-wrap items-center justify-between">
+                    <div class="w-full md:w-auto mb-2 md:mb-0">
+                        <h3 class="font-semibold text-gray-700">Progresso Geral</h3>
+                        <div class="progress-bar bg-gray-300 w-full md:w-64 mt-1">
+                            <div class="progress-fill bg-green-500" style="width: 100%"></div>
+                        </div>
+                        <span class="text-sm text-gray-600">100% concluído</span>
+                    </div>
+                    <div class="flex space-x-4 text-sm">
+                        <div>
+                            <span class="font-medium">Total: </span>
+                            <span class="text-gray-700">05 atividades</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Concluídas: </span>
+                            <span class="text-green-600">05</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Pendentes: </span>
+                            <span class="text-red-600">00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activities Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50 section-header">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">ID</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Atividades</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Responsável</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Equipe</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Predecessor</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Início</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Fim</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Duração</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Status</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Fim Real</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">%</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">Obs.</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activitiesTable" class="bg-white divide-y divide-gray-200">
+                        <!-- Section 1 -->
+                        <tr class="bg-gray-100 font-bold">
+                            <td colspan="13" class="px-4 py-2">
+                                <div class="flex justify-between items-center">
+                                    <span>Ativação de OCR ✔️</span>
+                                    <button class="text-gray-600 hover:text-red-600 transition" onclick="removeSection(this)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Activity Rows -->
+                        <tr class="fade-in">
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Verificação da Infraestrutura colocada</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Leo</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.I</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900"></td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">31/03/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">07/04/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">8</td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Concluido</span>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">07/04/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                                        
+                        <!-- Nova atividade 1.2 -->
+                        <tr class="fade-in">
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Instalação de OCR's</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Leo</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.I</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.1</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">07/04/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">08/04/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1</td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Concluido</span>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">08/04/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1">Faltando correção dos poste</textarea>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Nova atividade 1.3 -->
+                        <tr class="fade-in">
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.3</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Primeira ativação de OCR</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Leo</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.I</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">21/03/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">08/04/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">09</td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Concluido</span>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">14/04/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1">Proposto novo ponto de  colocação dos postes de OCR</textarea>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Nova atividade 1.4 -->
+                        <tr class="fade-in">
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.4</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Realocação de infraestrutura dos pontos de OCR</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Janison \ Jarbas</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.M</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">06/05/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">07/05/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1</td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Concluido</span>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">12/05/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Nova atividade 1.5 -->
+                        <tr class="fade-in">
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.5</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Segunda ativação de OCR</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Mauricio \ Leo</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">T.I</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1.2</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">12/05/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">13/05/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">2</td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Concluido</span>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">12/05/2025</td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <textarea class="text-xs w-full p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500" rows="1"></textarea>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-red-500 hover:text-red-700 transition" onclick="removeActivity(this)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="bg-gray-50 px-4 py-3 flex justify-between border-t">
+                <div>
+                    <button onclick="salvarDatas()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center transition">
+                        <i class="fas fa-save mr-2"></i> Salvar Alterações
+                    </button>
+                </div>
+                <div class="flex space-x-2">
+                    <button id="exportBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center transition">
+                        <i class="fas fa-file-export mr-2"></i> Exportar
+                    </button>
+                    <button id="printBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center transition">
+                        <i class="fas fa-print mr-2"></i> Imprimir
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Presentation Section -->
+        <section id="presentation" class="mt-16">
+            <div id="inicio" class="slide bg-gradient-to-br from-green-100 to-blue-100">
+                <div class="slide-content text-center">
+                    <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-6">Projeto de Implantação</h1>
+                    <h2 class="text-2xl md:text-4xl font-semibold text-blue-700 mb-8">Civil Trade</h2>
+                    <div class="max-w-3xl mx-auto">
+                        <img src="img/Civiltrade1.png" 
+                             alt="Shopping Cidade Jardim" class="rounded-lg shadow-xl mb-8 w-full">
+                    </div>
+                    <p class="text-lg md:text-xl text-gray-700 mb-8">Modernização completa com foco na experiência do cliente e mobilidade</p>
+                    <div class="flex justify-center space-x-4">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition duration-300">
+                            Saiba Mais
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="requalificacao" class="slide bg-gray-50">
+                <div class="slide-bg" style="background-image: url('https://via.placeholder.com/1920x1080?text=Ilhas+Requalificadas');"></div>
+                <div class="slide-content">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">Requalificação das Ilhas</h2>
+                    <p class="text-lg text-gray-700 mb-8 text-center max-w-4xl mx-auto">
+                        Transformação completa das áreas de circulação com novo design, materiais sustentáveis e melhor fluxo de veiculos.
+                    </p>
+
+                    <div class="carousel mb-8">
+                        <div class="carousel-inner">
+                            <div class="carousel-item">
+                                <img src="img/Civiltrade2.jpg" alt="Ilha de Entrada Antes">
+                                <div class="carousel-caption">
+                                    <h3 class="text-xl font-semibold">Ilha de Entrada - Antes</h3>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="img/Civiltrade3.jpg" alt="Ilha de Entrada Antes">
+                                <div class="carousel-caption">
+                                    <h3 class="text-xl font-semibold">Ilha de Entrada - Antes</h3>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="img/Civiltrade4.jpg" alt="Ilha de Saida Antes">
+                                <div class="carousel-caption">
+                                    <h3 class="text-xl font-semibold">Ilha de Saída - Antes</h3>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="img/Civiltrade5.jpg" alt="Ilha de Saída">
+                                <div class="carousel-caption">
+                                    <h3 class="text-xl font-semibold">Ilha de Saída - Pintura</h3>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="img/Civiltrade6.jpg" alt="Ilha de Entrada - Antes">
+                                <div class="carousel-caption">
+                                    <h3 class="text-xl font-semibold">Ilha de Entrada - Antes</h3>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="img/Civiltrade7.jpg" alt="Ilha de Entrada - Depois">
+                                <div class="carousel-caption">
+                                    <h3 class="text-xl font-semibold">Ilha de Entrada - Depois</h3>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="img/Civiltrade8.jpg" alt="Ilha de Saída">
+                                <div class="carousel-caption">
+                                    <h3 class="text-xl font-semibold">Ilha de Saída</h3>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="img/" alt="Ilha de Saída Direita">
+                                <div class="carousel-caption">
+                                    <h3 class="text-xl font-semibold">Ilha de Saída Direita</h3>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://via.placeholder.com/800x500?text=EPA" alt="EPA">
+                                <div class="carousel-caption">
+                                    <h3 class="text-xl font-semibold">EPA</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="carousel-control prev"><i class="fas fa-chevron-left"></i></button>
+                        <button class="carousel-control next"><i class="fas fa-chevron-right"></i></button>
+                        <div class="carousel-indicators">
+                            <div class="carousel-indicator active"></div>
+                            <div class="carousel-indicator"></div>
+                            <div class="carousel-indicator"></div>
+                            <div class="carousel-indicator"></div>
+                            <div class="carousel-indicator"></div>
+                            <div class="carousel-indicator"></div>
+                            <div class="carousel-indicator"></div>
+                            <div class="carousel-indicator"></div>
+                            <div class="carousel-indicator"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="text-blue-600 mb-3">
+                                <i class="fas fa-route text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">Melhor Fluxo</h3>
+                            <p class="text-gray-600">Redesenho completo para melhorar a circulação de visitantes e reduzir congestionamentos.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="text-green-600 mb-3">
+                                <i class="fas fa-leaf text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">Materiais Sustentáveis</h3>
+                            <p class="text-gray-600">Utilização de materiais ecológicos e de baixo impacto ambiental em toda a reforma.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="text-purple-600 mb-3">
+                                <i class="fas fa-palette text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">Design Moderno</h3>
+                            <p class="text-gray-600">Conceito visual contemporâneo que valoriza a identidade do shopping.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="automacao" class="slide bg-blue-50">
+                <div class="slide-bg" style="background-image: url('https://via.placeholder.com/1920x1080?text=Automação');"></div>
+                <div class="slide-content">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">Novos Equipamentos de Automação</h2>
+                    <p class="text-lg text-gray-700 mb-8 text-center max-w-4xl mx-auto">
+                        Tecnologia de ponta para melhorar a experiência dos clientes e otimizar a operação do shopping.
+                    </p>
+
+                    <div class="carousel mb-8">
+                        <div class="carousel-inner">
+                            <div class="carousel-item">
+                                <img src="https://via.placeholder.com/800x500?text=Totem+Interativo" alt="Totem Interativo">
+                                <div class="carousel-caption">
+                                    <h3 class="text-xl font-semibold">Totens Interativos</h3>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://via.placeholder.com/800x500?text=Sistema+de+Estacionamento" alt="Sistema de Estacionamento">
+                                <div class="carousel-caption">
+                                    <h3 class="text-xl font-semibold">Sistema Automatizado de Estacionamento</h3>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://via.placeholder.com/800x500?text=Controle+de+Acesso" alt="Controle de Acesso">
+                                <div class="carousel-caption">
+                                    <h3 class="text-xl font-semibold">Sistema Inteligente de Controle de Acesso</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="carousel-control prev"><i class="fas fa-chevron-left"></i></button>
+                        <button class="carousel-control next"><i class="fas fa-chevron-right"></i></button>
+                        <div class="carousel-indicators">
+                            <div class="carousel-indicator active"></div>
+                            <div class="carousel-indicator"></div>
+                            <div class="carousel-indicator"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="text-xl font-semibold mb-4 border-b pb-2">Soluções Implementadas</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span>Equipamentos novos de ultima geração, proporcionado uma nova experiência aos usuários faz toda a diferença para os estacionamentos . </span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span>Incoropora o que há de mais avançado para controle de acesso de veículos, podendo utilizar tecnologias como leitores de proximidade, tags, leitores e OCR's .</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span>Entregamos a melhor experiência para estacionar.  </span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span>Além de bem localizadas, as garagens Estapar oferecem infraestrutura completa para estacionar e tecnologia de ponta que facilitam sua experiência de mobilidade na cidade.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold mb-4 border-b pb-2">Benefícios</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fas fa-star text-yellow-500 mt-1 mr-2"></i>
+                                <span>Melhor experiência para os clientes</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-star text-yellow-500 mt-1 mr-2"></i>
+                                <span>Redução de filas e tempo de espera</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-star text-yellow-500 mt-1 mr-2"></i>
+                                <span>Maior segurança e controle de acesso</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-star text-yellow-500 mt-1 mr-2"></i>
+                                <span>Dados em tempo real para gestão operacional</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EPA Nova -->
+        <section id="epa" class="slide bg-green-50">
+            <div class="slide-bg" style="background-image: url('https://via.placeholder.com/1920x1080?text=EPA+Nova');"></div>
+            <div class="slide-content">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">Nova EPA</h2>
+                <p class="text-lg text-gray-700 mb-8 text-center max-w-4xl mx-auto">
+                    Espaço totalmente reformulado com conceito moderno e integrado ao novo projeto do shopping.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <img src="img/epa antiga.jpg" alt="EPA Antiga" class="rounded-lg shadow-md w-full mb-4">
+                        <p class="text-gray-600 text-sm">Vista da Antiga EPA material retrógrado </p>
+                    </div>
+                    <div>
+                        <img src="img/EPAS2..jpg" alt="EPA Nova" class="rounded-lg shadow-md w-full mb-4">
+                        <p class="text-gray-600 text-sm">Vista da Nova EPA com design moderno e uma estrutura otimizada</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+                    <h3 class="text-2xl font-bold text-center mb-6">Destaques da Nova EPA</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-expand text-blue-600 text-2xl"></i>
+                            </div>
+                            <h4 class="font-semibold mb-1">Área Ampliada</h4>
+                            <p class="text-gray-600 text-sm">30% maior que a versão anterior e mais Interativo.</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-sun text-green-600 text-2xl"></i>
+                            </div>
+                            <h4 class="font-semibold mb-1">Tela Touchscreen</h4>
+                            <p class="text-gray-600 text-sm">Que permite a navegação intuitiva pelas opções de serviço.</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-recycle text-purple-600 text-2xl"></i>
+                            </div>
+                            <h4 class="font-semibold mb-1">Impressora térmica</h4>
+                            <p class="text-gray-600 text-sm">Que emite comprovantes das transações com rapidez e economia de papel.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Slide -->
+        <section class="slide bg-gradient-to-br from-blue-900 to-green-900 text-white">
+            <div class="slide-content text-center">
+                <h2 class="text-3xl md:text-5xl font-bold mb-6">Obrigado!</h2>
+                <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
+                    A Estapar e Shopping Cidade Jardim renovado oferece agora uma experiência completa, moderna e sustentável para todos os visitantes.
+                </p>
+                <div class="flex justify-center space-x-6">
+                    <div class="text-center">
+                        <div class="text-4xl font-bold mb-2">100%</div>
+                        <div class="text-sm uppercase">Novo Design</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold mb-2">50+</div>
+                        <div class="text-sm uppercase">Equipamentos Automatizados</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold mb-2">1</div>
+                        <div class="text-sm uppercase">Conceito Único</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Print Button -->
+    <button id="printButton" class="print-button" onclick="window.print()">
+        <i class="fas fa-print"></i>
+        <span>Imprimir</span>
+    </button>
+
+    <script>
+        // Carousel functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const carousels = document.querySelectorAll('.carousel');
+            
+            carousels.forEach(carousel => {
+                const inner = carousel.querySelector('.carousel-inner');
+                const items = carousel.querySelectorAll('.carousel-item');
+                const prevBtn = carousel.querySelector('.prev');
+                const nextBtn = carousel.querySelector('.next');
+                const indicators = carousel.querySelectorAll('.carousel-indicator');
+                
+                let currentIndex = 0;
+                const itemWidth = items[0].clientWidth;
+                const totalItems = items.length;
+                
+                function updateCarousel() {
+                    inner.style.transform = `translateX(-${currentIndex * itemWidth}px)`;
+                    
+                    // Update indicators
+                    indicators.forEach((indicator, index) => {
+                        if (index === currentIndex) {
+                            indicator.classList.add('active');
+                        } else {
+                            indicator.classList.remove('active');
+                        }
+                    });
+                }
+                
+                nextBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % totalItems;
+                    updateCarousel();
+                });
+                
+                prevBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+                    updateCarousel();
+                });
+                
+                // Indicator click
+                indicators.forEach((indicator, index) => {
+                    indicator.addEventListener('click', () => {
+                        currentIndex = index;
+                        updateCarousel();
+                    });
+                });
+                
+                // Auto-advance (optional)
+                setInterval(() => {
+                    currentIndex = (currentIndex + 1) % totalItems;
+                    updateCarousel();
+                }, 5000);
+            });
+            
+            // Smooth scrolling for navigation
+            document.querySelectorAll('nav a').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    window.scrollTo({
+                        top: targetElement.offsetTop,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
